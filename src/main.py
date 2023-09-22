@@ -37,7 +37,7 @@ class Plotter():
         if isinstance(signaldf, pd.DataFrame):
             self.signaldf = signaldf 
         else:
-            raise ValueError('Signal df is not a dataframe')
+            raise TypeError('Signal df is not a dataframe')
         
         if datadf is not None:
             if isinstance(datadf, pd.DataFrame):
@@ -73,28 +73,28 @@ class Plotter():
         # Set up matplotlib plot 
         ax = plt.subplot()
 
-        # Set up empty dict of numpy arrays
-        nps = {}
+        # Set up empty dict of MC numpy arrays
+        mcnps = {}
 
         for label, df in self.mcdfs.items():
-            nps[label] = df.query(cuts + f'and {self.isSigvar} != 1')[var].to_numpy()
-        nps['signal'] = self.signaldf.query(cuts + f'and {self.isSigvar} == 1')[var].to_numpy()
+            mcnps[label] = df.query(cuts + f'and {self.isSigvar} != 1')[var].to_numpy()
+        mcnps['signal'] = self.signaldf.query(cuts + f'and {self.isSigvar} == 1')[var].to_numpy()
 
         if self.datadf is not None:
-            nps['data'] = self.datadf.query(cuts)[var].to_numpy()
+            datanp = self.datadf.query(cuts)[var].to_numpy()
         
         # Set up empty dict of weights 
         wnps = {}
 
-        for label, np in nps.items():
+        for label, np in mcnps.items():
             if label != 'signal':
                 wnps[label] = [bgscale] * len(np)
             else:
                 wnps['signal'] = [scale] * len(np)
         
         # Create stacked matplotlib histogram
-        ax.hist(list(nps.values()), bins = nbins, range = myrange,
-                label = list(nps.keys()),
+        ax.hist(list(mcnps.values()), bins = nbins, range = myrange,
+                label = list(mcnps.keys()),
                 weights = list(wnps.values()),
                 stacked = True)
         

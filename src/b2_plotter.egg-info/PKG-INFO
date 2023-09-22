@@ -1,6 +1,22 @@
+Metadata-Version: 2.1
+Name: b2-plotter
+Version: 1.0.0
+Summary: A simple Python package for use by Belle II analysts to make various plots out of pandas dataframes and numpy arrays.
+Home-page: https://github.com/psgebeline/b2_plotter/
+Author: Paul Gebeline
+Author-email: paulgebeline1@gmail.com
+Project-URL: Bug Tracker, https://github.com/psgebeline/b2_plotter/-/issues
+Project-URL: repository, https://github.com/psgebeline/b2_plotter/
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+
 MIT License
 
-Copyright (c) 2023 Paul Gebeline
+Copyright (c) [2023] [Paul Gebeline]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
