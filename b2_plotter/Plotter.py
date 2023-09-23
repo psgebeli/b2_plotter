@@ -262,86 +262,14 @@ class Plotter():
         plt.show()
         plt.show()
 
-    def plotBias(self, compVar, lifetimeVar, massvar, myrange, signalregion, step, refLifetime, xlabel = ''):
-
-        '''Function to plot a variable, var1, binned in terms of another variable, var2. This shows the correlation between the two variables
-        and if any constraints on one variable will bias the other. The most common use case of this is to determine if constraints to variables
-        introduce a bias to the particle lifetime.
-
-        :param compVar: The variable that may introduce bias
-        :type compVar: str
-        :param lifetimeVar: The name of lifetime variable, usually mcFlightTime
-        :type lifetimeVar: str
-        :param massvar: The name of the variable for your particle's mass
-        :type massvar: str
-        :param myrange: Range on x-axis
-        :type myrange: tuple
-        :param signalregion: The signal region for the mass of your particular particle.
-        :type signalregion: tuple 
-        :param step: The x-axis width between bins
-        :type step: float
-        :param refLifetime: Average lifetime of particle in picoseconds
-        :type refLifetime: float
-        :param xlabel: Label on x-axis 
-        :type xlabel: str (usually raw str)'''
-
-        # Setup plot
-        ax = plt.subplot()
-
-        # Partition the bins
-        mybins = np.arange(myrange[0], myrange[1], step)
-        probs = np.arange(myrange[0], myrange[1] + step, step)
-
-        # Create empty list for the mean, error bars, and widths
-        means, errs, sigmas = [], [], []
-
-        for i in range(0, len(probs) - 1):
-
-            # Create a signal numpy array
-            npsig = self.signaldf.query(f'{signalregion[0]} < {massvar} < {signalregion[1]} and {self.isSigvar} == 1 and {probs[i]} < {compVar} < {probs[i+1]}')[lifetimeVar].to_numpy() * 1000
-
-            # Append the mean, error bar, and width
-            means.append(np.average(npsig))
-            errs.append(np.std(npsig) / np.sqrt(npsig.size - 1))
-            sigmas.append((refLifetime - np.average(npsig)) * np.sqrt(npsig.size - 1) / np.std(npsig))
-
-        # Create error bar
-        ax.errorbar(mybins, means, yerr = errs, fmt = 'kp')
-
-        # Perform constant chi^2 fit 
-        p2, res2, _, _, _ = np.polyfit(mybins, means, deg = 0, full = True)
-        p2_fn = np.poly1d(p2)
-        p2bins = np.polyval(p2, mybins)
-        cs2 = np.sum(np.square(p2bins - means) / np.square(errs))
-        plt.plot(mybins, p2_fn(mybins), color = 'red', label = f'constant fit $\chi^2$/dof = {round(cs2, 5)}, dof = {len(means) - 1}')
-
-        # Perform linear chi^2 fit
-        p1, res, _, _, _ = np.polyfit(mybins, means, deg = 1, full = True)
-        p1_fn = np.poly1d(p1)
-        p1bins = np.polyval(p1, mybins)
-        cs1 = np.sum(np.square(p1bins - means) / np.square(errs))
-        plt.plot(mybins, p1_fn(mybins), color = 'red', label = f'linear fit $\chi^2$/dof = {round(cs1, 5)}, dof = {len(means) - 2}')
-
-        print(cs1)
-        print(cs2)
-
-        # Set plot features
-        plt.ylim(refLifetime - (refLifetime / 2), refLifetime + (2 * refLifetime))
-        plt.legend()
-        plt.xlabel(compVar) if xlabel == '' else plt.xlabel(xlabel)
-        plt.ylabel('Lifetime (ps)')
-        plt.show()
-
-    def get_purity(self, cuts, massVar, myrange, signalregion):
+    def get_purity(self, cuts, massVar, signalregion):
         
         '''Function to return the purity, % of signal in signal region
         
         :param cuts: All cuts to be applied to the dataframes before plotting
         :type cuts: str
         :param massvar: The name of the variable for your particle's mass
-        :type massvar: str
-        :param myrange: The range over which cuts should be applied
-        :type myrange: tuple 
+        :type massvar: str 
         :param signalregion: The signal region for the mass of your particular particle.
         :type signalregion: tuple'''
 
@@ -355,16 +283,14 @@ class Plotter():
 
         return sig_events / total_events * 100
     
-    def get_sigeff(self, cuts, massVar, myrange, signalregion):
+    def get_sigeff(self, cuts, massVar, signalregion):
 
         '''Function to return the sigeff, % of signal lost from applying cuts
         
         :param cuts: All cuts to be applied to the dataframes before plotting
         :type cuts: str
         :param massvar: The name of the variable for your particle's mass
-        :type massvar: str
-        :param myrange: The range over which cuts should be applied
-        :type myrange: tuple 
+        :type massvar: str 
         :param signalregion: The signal region for the mass of your particular particle.
         :type signalregion: tuple'''
 
