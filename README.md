@@ -20,4 +20,4 @@ Initial launch.
 ### Version 1.0.2 
 - Edit README.md
 - Remove tests/ directory (unit tests are not particularly useful for this package)
--
+- Rename directories so imports are more intuitive

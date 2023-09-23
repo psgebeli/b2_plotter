@@ -1,8 +1,0 @@
-LICENSE.txt
-README.txt
-pyproject.toml
-setup.cfg
-src/b2_plotter.egg-info/PKG-INFO
-src/b2_plotter.egg-info/SOURCES.txt
-src/b2_plotter.egg-info/dependency_links.txt
-src/b2_plotter.egg-info/top_level.txt
