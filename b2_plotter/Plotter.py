@@ -298,11 +298,32 @@ class Plotter():
         sig_after = len(self.signaldf.query(f'{signalregion[0]} < {massVar} < {signalregion[1]} and {cuts} and {self.isSigvar} == 1'))
 
         return sig_after / sig_before * 100
-        
+
+def main():
+    
+    # Define input files 
+    infiles = {'ccbar' : '/belle2work/psgebeli/mc15rib/gmc/xipipi/ccbar.root',
+               'uubar' : '/belle2work/psgebeli/mc15rib/gmc/xipipi/uubar.root',
+               'ssbar' : '/belle2work/psgebeli/mc15rib/gmc/xipipi/ssbar.root',
+               'ddbar' : '/belle2work/psgebeli/mc15rib/gmc/xipipi/ddbar.root'
+    }
+
+    # Define variables to read in to dataframes (to reduce run time/memory)
+    mycols= ['xic_M','xic_isSignal', 'xic_significanceOfDistance','xi_significanceOfDistance',
+             'lambda0_p_protonID', 'xi_M', 'xic_mcFlightTime', 'xic_chiProb']
+
+    # Empty dict for dataframes
+    dfs = {}
+
+    # Make dataframes 
+    for qqbar in infiles:
+        dfs[qqbar] = root_pandas.read_root(infiles[qqbar], key = 'xic_tree', columns = mycols)
+    df_mc = pd.concat(df for df in dfs.values())
 
 
 
-        
+if __name__ == '__main__':
+    main()
 
 
 

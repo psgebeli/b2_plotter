@@ -11,6 +11,7 @@ More coming soon.
 - Change readme such that recent versions are at the top 
 - Remove `plotBias` function, as it is very niche
 - Remove unused parameter `myrange` in get_sigeff and get_purity
+- Add main() function 
 
 ### Version 1.0.2 
 - Edit README.md
