@@ -236,7 +236,7 @@ class Plotter():
         optimal_cut = testcuts[max_fom_index]
 
         # Save as png if the session is not interactive, otherwise show
-        plt.savefig(f'foms/{var}.png') if not self.interactive else plt.show()
+        plt.savefig(f'fom_{var}.png') if not self.interactive else plt.show()
 
         # Return cut information
         return optimal_cut, fom[max_fom_index]
