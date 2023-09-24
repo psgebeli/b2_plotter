@@ -1,13 +1,13 @@
 
 # Preamble
-import numpy as np 
+import numpy
 import matplotlib.pyplot as plt 
 import root_pandas 
 import pandas as pd 
 
 class Plotter():
 
-    def __init__(self, isSigvar: str, mcdfs: dict, signaldf: pd.DataFrame, datadf: pd.DataFrame = None):
+    def __init__(self, isSigvar: str, mcdfs: dict, signaldf: pd.DataFrame, datadf: pd.DataFrame = None, interactive: bool = True):
         
         '''
         Initialize a plotter object upon constructor call.
@@ -20,6 +20,8 @@ class Plotter():
         :type signaldf: pandas dataframe
         :param datadf: Data dataframe constructed with root_pandas
         :type datadf: pandas dataframe
+        :param interactive: Decides whether or not to show the plots interactively or to save them as output files
+        :type interactive: bool
         
 
         :raise TypeError: If any parameters dont match expected type
@@ -52,7 +54,12 @@ class Plotter():
         else:
             raise TypeError('isSigvar is not a string.')
         
-    def plot(self, var, cuts, myrange, nbins = 100, isLog = False, xlabel = '', scale = 1, bgscale = 1):
+        if isinstance(interactive, bool):
+            self.interactive = interactive
+        else:
+            raise TypeError('Interactive is not a boolean expression.')
+        
+    def plot(self, var, cuts, myrange = '', nbins = 100, isLog = False, xlabel = '', scale = 1, bgscale = 1):
 
         '''Create a matplotlib stacked histogram of a variable over a certain range.
         If datadf is provided to constructor, data will be stacked on top of MC.
@@ -67,8 +74,12 @@ class Plotter():
         :type nbins: int 
         :param isLog: Whether or not the plot should be on a logarithmic scale 
         :type isLog: bool
-        :param label: Label on x-axis 
-        :type label: str (usually raw str)'''
+        :param xlabel: Label on x-axis 
+        :type xlabel: str (usually raw str)
+        :param scale: Factor by which to scale the signal
+        :type scale: Float
+        :param bgscale: Factor by which to scale the background
+        :type bgscale: Float'''
 
         # Set up matplotlib plot 
         ax = plt.subplot()
@@ -76,21 +87,30 @@ class Plotter():
         # Set up empty dict of MC numpy arrays
         mcnps = {}
 
+        # For each key/value pair in mcdfs, create a new entry in mcnps of 'label' : numpy array.
+        # Also create an entry for the signal.
         for label, df in self.mcdfs.items():
             mcnps[label] = df.query(cuts + f'and {self.isSigvar} != 1')[var].to_numpy()
         mcnps['signal'] = self.signaldf.query(cuts + f'and {self.isSigvar} == 1')[var].to_numpy()
 
+        # If there is a data dataframe, create a corresponding numpy array.
         if self.datadf is not None:
             datanp = self.datadf.query(cuts)[var].to_numpy()
         
         # Set up empty dict of weights 
         wnps = {}
 
+        # For each label : np array in mcnps, create a weight of the corresponding scale times the length of the array
         for label, np in mcnps.items():
             if label != 'signal':
                 wnps[label] = [bgscale] * len(np)
             else:
                 wnps['signal'] = [scale] * len(np)
+
+        if myrange == '':
+            # Calculate the dynamic range for the variable based on the data within the specified cuts
+            all_data = numpy.concatenate(list(mcnps.values()))
+            myrange = (numpy.min(all_data), numpy.max(all_data))
         
         # Create stacked matplotlib histogram
         ax.hist(list(mcnps.values()), bins = nbins, range = myrange,
@@ -99,16 +119,14 @@ class Plotter():
                 stacked = True)
         
         # Plot features 
-
         plt.yscale('log') if isLog else plt.yscale('linear')
-
         plt.xlim(myrange)
         plt.ylabel('Number of Events')
-
         plt.xlabel(var) if xlabel == '' else plt.xlabel(xlabel)
-
         plt.legend()
-        plt.show()
+
+        # If the session is not interactive, save the plot in a directory called plots and name it var.png. Otherwise, show it.
+        plt.savefig(f'plot_{var}.png') if not self.interactive else plt.show()
 
     def plotFom(self, var, massvar, myrange, signalregion, isGreaterThan = True, nbins = 100, xlabel = ''):
 
@@ -166,7 +184,7 @@ class Plotter():
             globalbkg.append(df_bkg.query(f'{globalcuts} and {self.isSigvar} != 1')[var].to_numpy().size)
 
             # Calculate the figure of merit for this bin and append it to fom list
-            fom.append(globalsig[bin] / np.sqrt(globalsig[bin] + globalbkg[bin]))
+            fom.append(globalsig[bin] / numpy.sqrt(globalsig[bin] + globalbkg[bin]))
 
         
         # Setup the figure of merit plot
@@ -185,7 +203,7 @@ class Plotter():
         axes[-1].set_frame_on(True)
         axes[-1].patch.set_visible(False)
 
-       # Initialize empty lists for signal efficiency and purity and append values for each bin to the lists.
+        # Initialize empty lists for signal efficiency and purity and append values for each bin to the lists.
         sigeff = []
         purity = []
         for bin in range(0, (nbins - 1)):
@@ -208,21 +226,20 @@ class Plotter():
         axes[0].set_xlabel(xlabel)
         ax.grid()
         
-        # Show the plot
-        plt.show()
-        
         # Convert fom to a numpy array for easier manipulation
-        fom = np.array(fom)
+        fom = numpy.array(fom)
 
         # Find the index of the maximum value in the fom array
-        max_fom_index = np.argmax(fom)
+        max_fom_index = numpy.argmax(fom)
 
         # Get the corresponding test cut value at the maximum FOM
         optimal_cut = testcuts[max_fom_index]
 
-        # Print the optimal cut and corresponding maximum FOM
-        print("Optimal Cut:", optimal_cut)
-        print("Maximum Figure of Merit:", fom[max_fom_index])
+        # Save as png if the session is not interactive, otherwise show
+        plt.savefig(f'foms/{var}.png') if not self.interactive else plt.show()
+
+        # Return cut information
+        return optimal_cut, fom[max_fom_index]
 
     def plotStep(self, var, cuts, myrange, nbins = 100, xlabel = ''):
 
@@ -259,8 +276,7 @@ class Plotter():
         
         # Create a legend and show both of the plots
         plt.legend()
-        plt.show()
-        plt.show()
+        plt.savefig(f'step_plots/{var}') if not self.interactive else plt.show()
 
     def get_purity(self, cuts, massVar, signalregion):
         
@@ -326,8 +342,8 @@ def main():
     chicut = 'xic_chiProb > 0.001'
 
     # Initialize plotter object 
-    plotter = Plotter(isSigvar = 'xic_isSignal', mcdfs = dfs, signaldf = df_mc)
-    plotter.plot('xic_M', cuts = xicmassrangeloose, myrange = (2.3, 2.65))
+    plotter = Plotter(isSigvar = 'xic_isSignal', mcdfs = dfs, signaldf = df_mc, interactive = False)
+    plotter.plot('xic_M', cuts = xicmassrangeloose)
 
 
     
