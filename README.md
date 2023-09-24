@@ -12,6 +12,7 @@ More coming soon.
 - Remove `plotBias` function, as it is very niche
 - Remove unused parameter `myrange` in get_sigeff and get_purity
 - Add main() function 
+- Add interactivity boolean in constructor call to decide whether or not to save plots to a .png or show them directlypytho
 
 ### Version 1.0.2 
 - Edit README.md
