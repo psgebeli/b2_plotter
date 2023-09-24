@@ -320,6 +320,18 @@ def main():
         dfs[qqbar] = root_pandas.read_root(infiles[qqbar], key = 'xic_tree', columns = mycols)
     df_mc = pd.concat(df for df in dfs.values())
 
+    # Define frequent variables
+    xicmassrangeloose = 'xic_M > 2.3 & xic_M < 2.65'
+    xicmassrangetight = 'xic_M > 2.46 & xic_M < 2.475'
+    chicut = 'xic_chiProb > 0.001'
+
+    # Initialize plotter object 
+    plotter = Plotter(isSigvar = 'xic_isSignal', mcdfs = dfs, signaldf = df_mc)
+    plotter.plot('xic_M', cuts = xicmassrangeloose, myrange = (2.3, 2.65))
+
+
+    
+
 
 
 if __name__ == '__main__':
