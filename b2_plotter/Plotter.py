@@ -302,10 +302,10 @@ class Plotter():
 def main():
     
     # Define input files 
-    infiles = {'ccbar' : '/belle2work/psgebeli/mc15rib/gmc/xipipi/ccbar.root',
-               'uubar' : '/belle2work/psgebeli/mc15rib/gmc/xipipi/uubar.root',
-               'ssbar' : '/belle2work/psgebeli/mc15rib/gmc/xipipi/ssbar.root',
-               'ddbar' : '/belle2work/psgebeli/mc15rib/gmc/xipipi/ddbar.root'
+    infiles = {'ccbar' : '../../samples/gmc/mc15rib/xipipi/skimmed/ccbar_skimmed.root',
+               'uubar' : '../../samples/gmc/mc15rib/xipipi/skimmed/uubar_skimmed.root',
+               'ssbar' : '../../samples/gmc/mc15rib/xipipi/skimmed/ssbar_skimmed.root',
+               'ddbar' : '../../samples/gmc/mc15rib/xipipi/skimmed/ddbar_skimmed.root'
     }
 
     # Define variables to read in to dataframes (to reduce run time/memory)
