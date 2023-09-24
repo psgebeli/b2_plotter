@@ -343,6 +343,8 @@ def main():
 
     # Initialize plotter object 
     plotter = Plotter(isSigvar = 'xic_isSignal', mcdfs = dfs, signaldf = df_mc, interactive = False)
+
+    # Plot 
     plotter.plot('xic_M', cuts = xicmassrangeloose)
 
 
