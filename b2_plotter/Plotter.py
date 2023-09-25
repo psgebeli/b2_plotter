@@ -59,7 +59,7 @@ class Plotter():
         else:
             raise TypeError('Interactive is not a boolean expression.')
         
-    def plot(self, var, cuts, myrange = '', nbins = 100, isLog = False, xlabel = '', scale = 1, bgscale = 1):
+    def plot(self, var, cuts, myrange = (), nbins = 100, isLog = False, xlabel = '', scale = 1, bgscale = 1):
 
         '''Create a matplotlib stacked histogram of a variable over a certain range.
         If datadf is provided to constructor, data will be stacked on top of MC.
@@ -107,7 +107,7 @@ class Plotter():
             else:
                 wnps['signal'] = [scale] * len(np)
 
-        if myrange == '':
+        if myrange == ():
             # Calculate the dynamic range for the variable based on the data within the specified cuts
             all_data = numpy.concatenate(list(mcnps.values()))
             myrange = (numpy.min(all_data), numpy.max(all_data))
