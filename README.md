@@ -5,6 +5,11 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ## Releases
 
+### Version 1.0.5 
+- Create example files for interactive session
+- Change massvar name to be consistent (massVar in get_purity but massvar in FOM, etc)
+- Implement dynamic range calculation in plotFom
+
 ### Version 1.0.4
 - Bugfix main and implement a for loop to plot multiple variables
 - Create usage details in README.md

@@ -160,9 +160,18 @@ class Plotter():
         # Create a background dataframe as the concatenation of all of the individual monte carlo dataframes
         df_bkg = pd.concat(self.mcdfs)
 
+        # Store the total signal and background as numpy arrays
+        np_bkg = df_bkg.query(f'{signalregion[0]} < {massvar} < {signalregion[1]} and {self.isSigvar} != 1')[var].to_numpy()
+        np_sig = self.signaldf.query(f'{signalregion[0]} < {massvar} < {signalregion[1]} and {self.isSigvar} == 1')[var].to_numpy()
+
+
         # Store the total amount of background/sig events in the signal region by the size of their numpy array
-        total_bkg = df_bkg.query(f'{signalregion[0]} < {massvar} < {signalregion[1]} and {self.isSigvar} != 1')[var].to_numpy().size
-        total_sig = self.signaldf.query(f'{signalregion[0]} < {massvar} < {signalregion[1]} and {self.isSigvar} == 1')[var].to_numpy().size
+        total_bkg = np_bkg.size()
+        total_sig = np_sig.size()
+
+        if myrange == ():
+            # Calculate the dynamic range for the variable based on the data within the specified cuts
+            myrange = (numpy.min(np_sig), numpy.max(np_sig))
 
         # Initialize empty lists for testcuts, number of background/sig events after some global cut has been applied, and the figure of merit values
         testcuts, globalsig, globalbkg, fom = [], [], [], []
@@ -283,7 +292,7 @@ class Plotter():
         plt.legend()
         plt.savefig(f'step_plots/{var}') if not self.interactive else plt.show()
 
-    def get_purity(self, cuts, massVar, signalregion):
+    def get_purity(self, cuts, massvar, signalregion):
         
         '''Function to return the purity, % of signal in signal region
         
@@ -296,15 +305,15 @@ class Plotter():
 
         df_bkg = pd.concat(self.mcdfs)
 
-        npsig = self.signaldf.query(f'{signalregion[0]} < {massVar} < {signalregion[1]} and {cuts} and {self.isSigvar} == 1').to_numpy()
-        npbkg = df_bkg.query(f'{signalregion[0]} < {massVar} < {signalregion[1]} and {cuts} and {self.isSigvar} != 1')[massVar].to_numpy()
+        npsig = self.signaldf.query(f'{signalregion[0]} < {massvar} < {signalregion[1]} and {cuts} and {self.isSigvar} == 1').to_numpy()
+        npbkg = df_bkg.query(f'{signalregion[0]} < {massvar} < {signalregion[1]} and {cuts} and {self.isSigvar} != 1')[massVar].to_numpy()
 
         sig_events, bkg_events = len(npsig), len(npbkg)
         total_events = sig_events + bkg_events
 
         return sig_events / total_events * 100
     
-    def get_sigeff(self, cuts, massVar, signalregion):
+    def get_sigeff(self, cuts, massvar, signalregion):
 
         '''Function to return the sigeff, % of signal lost from applying cuts
         
@@ -315,8 +324,8 @@ class Plotter():
         :param signalregion: The signal region for the mass of your particular particle.
         :type signalregion: tuple'''
 
-        sig_before = len(self.signaldf.query(f'{signalregion[0]} < {massVar} < {signalregion[1]} and {self.isSigvar} == 1'))
-        sig_after = len(self.signaldf.query(f'{signalregion[0]} < {massVar} < {signalregion[1]} and {cuts} and {self.isSigvar} == 1'))
+        sig_before = len(self.signaldf.query(f'{signalregion[0]} < {massvar} < {signalregion[1]} and {self.isSigvar} == 1'))
+        sig_after = len(self.signaldf.query(f'{signalregion[0]} < {massvar} < {signalregion[1]} and {cuts} and {self.isSigvar} == 1'))
 
         return sig_after / sig_before * 100
 
