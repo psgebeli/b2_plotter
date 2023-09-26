@@ -335,8 +335,8 @@ def main():
     dfs = {}
 
     # Make dataframes 
-    for qqbar in infiles:
-        dfs[qqbar] = root_pandas.read_root(infiles[qqbar], key = 'xic_tree', columns = mycols)
+    for qqbar, path in infiles:
+        dfs[qqbar] = root_pandas.read_root(path, key = 'xic_tree', columns = mycols)
     df_mc = pd.concat(df for df in dfs.values())
 
     # Define frequent variables

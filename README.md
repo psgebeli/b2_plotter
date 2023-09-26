@@ -7,12 +7,15 @@ More coming soon.
 
 ## Releases
 
+### Version 1.0.4
+- Edit main() by creating a list of variables to plot, and plotting all of them
+
 ### Version 1.0.3 
 - Change readme such that recent versions are at the top 
 - Remove `plotBias` function, as it is very niche
 - Remove unused parameter `myrange` in get_sigeff and get_purity
 - Add main() function 
-- Add interactivity boolean in constructor call to decide whether or not to save plots to a .png or show them directlypytho
+- Add interactivity boolean in constructor call to decide whether or not to save plots to a .png or show them directly
 
 ### Version 1.0.2 
 - Edit README.md
