@@ -329,7 +329,7 @@ def main():
              'lambda0_p_protonID', 'xi_M', 'xic_mcFlightTime', 'xic_chiProb', 'xic_isSignal']
     
     # Define variables of interest (everything we read in excluding chiprob and issignal)
-    vars_of_interest = mycols[:-2]
+    vars_of_interest = mycols[:-3]
 
     # Empty dict for dataframes
     dfs = {}
