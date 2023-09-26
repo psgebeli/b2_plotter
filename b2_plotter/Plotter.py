@@ -325,8 +325,11 @@ def main():
     }
 
     # Define variables to read in to dataframes (to reduce run time/memory)
-    mycols= ['xic_M','xic_isSignal', 'xic_significanceOfDistance','xi_significanceOfDistance',
-             'lambda0_p_protonID', 'xi_M', 'xic_mcFlightTime', 'xic_chiProb']
+    mycols= ['xic_M', 'xic_significanceOfDistance','xi_significanceOfDistance',
+             'lambda0_p_protonID', 'xi_M', 'xic_mcFlightTime', 'xic_chiProb', 'xic_isSignal']
+    
+    # Define variables of interest (everything we read in excluding chiprob and issignal)
+    vars_of_interest = mycols[:-2]
 
     # Empty dict for dataframes
     dfs = {}
@@ -345,7 +348,8 @@ def main():
     plotter = Plotter(isSigvar = 'xic_isSignal', mcdfs = dfs, signaldf = df_mc, interactive = False)
 
     # Plot 
-    plotter.plot('xic_M', cuts = xicmassrangeloose)
+    for variable in vars_of_interest:
+        plotter.plot(variable, cuts = xicmassrangeloose)
 
 
     
