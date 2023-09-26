@@ -126,7 +126,12 @@ class Plotter():
         plt.legend()
 
         # If the session is not interactive, save the plot in a directory called plots and name it var.png. Otherwise, show it.
-        plt.savefig(f'plot_{var}.png') if not self.interactive else plt.show()
+        if not self.interactive:
+            plt.savefig(f'plot_{var}.png')
+            plt.close()
+        else:
+            plt.show()
+
 
     def plotFom(self, var, massvar, myrange, signalregion, isGreaterThan = True, nbins = 100, xlabel = ''):
 

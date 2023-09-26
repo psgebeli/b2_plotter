@@ -3,12 +3,11 @@
 ## Description
 The `b2_plotter` package consists of the class Plotter(), whereby several plots based on numpy arrays and pandas dataframes can be created easily. 
 
-More coming soon.
-
 ## Releases
 
 ### Version 1.0.4
-- Edit main() by creating a list of variables to plot, and plotting all of them
+- Bugfix main and implement a for loop to plot multiple variables
+- Create usage details in README.md
 
 ### Version 1.0.3 
 - Change readme such that recent versions are at the top 
