@@ -335,7 +335,7 @@ def main():
     dfs = {}
 
     # Make dataframes 
-    for qqbar, path in infiles:
+    for qqbar, path in infiles.items():
         dfs[qqbar] = root_pandas.read_root(path, key = 'xic_tree', columns = mycols)
     df_mc = pd.concat(df for df in dfs.values())
 
