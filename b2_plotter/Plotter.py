@@ -95,7 +95,7 @@ class Plotter():
 
         # If there is a data dataframe, create a corresponding numpy array.
         if self.datadf is not None:
-            datanp = self.datadf.query(cuts)[var].to_numpy()
+            npdata = self.datadf.query(cuts)[var].to_numpy()
         
         # Set up empty dict of weights 
         wnps = {}
@@ -113,10 +113,19 @@ class Plotter():
             myrange = (numpy.min(all_data), numpy.max(all_data))
         
         # Create stacked matplotlib histogram
-        ax.hist(list(mcnps.values()), bins = nbins, range = myrange,
-                label = list(mcnps.keys()),
-                weights = list(wnps.values()),
-                stacked = True)
+        if self.datadf is not None:
+            ydata, bin_edges = np.histogram(npdata, bins=nbins, range=myrange)
+            ax.hist(list(mcnps.values()), bins = nbins, range = myrange,
+                    label = list(mcnps.keys()),
+                    weights = list(wnps.values()),
+                    stacked = True)
+            bin_centers = 0.5*(bin_edges[1:] + bin_edges[:-1])
+            ax.errorbar(bin_centers, ydata, yerr = ydata**0.5, fmt='ko', label="Data")
+        else:
+            ax.hist(list(mcnps.values()), bins = nbins, range = myrange,
+                    label = list(mcnps.keys()),
+                    weights = list(wnps.values()),
+                    stacked = True)
         
         # Plot features 
         plt.yscale('log') if isLog else plt.yscale('linear')
