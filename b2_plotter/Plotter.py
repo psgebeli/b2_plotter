@@ -165,8 +165,7 @@ class Plotter():
         np_sig = self.signaldf.query(f'{signalregion[0]} < {massvar} < {signalregion[1]} and {self.isSigvar} == 1')[var].to_numpy()
 
 
-        # Store the total amount of background/sig events in the signal region by the size of their numpy array
-        total_bkg = np_bkg.size()
+        # Store the total amount of sig events in the signal region by the size of the numpy array
         total_sig = np_sig.size()
 
         if myrange == ():

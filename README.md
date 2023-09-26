@@ -5,6 +5,9 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ## Releases
 
+### Version 1.0.6
+- Remove deprecated var total_bkg from plotFom()
+
 ### Version 1.0.5 
 - Create example files for interactive session
 - Change massvar name to be consistent (massVar in get_purity but massvar in FOM, etc)
