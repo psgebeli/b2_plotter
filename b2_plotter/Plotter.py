@@ -236,7 +236,12 @@ class Plotter():
         axes[2].set_ylabel('Purity', color='Green')
 
         # Label the x-axis according to the input parameter and add grid lines to the axis plot
-        axes[0].set_xlabel(xlabel)
+        if xlabel == '' and isGreaterThan:
+            axes[0].set_xlabel(f'{var} > ...')
+        elif xlabel == '' and not isGreaterThan:
+            axes[0].set_xlabel(f'{var} < ...')
+        else:
+            axes[0].set_xlabel(xlabel)
         ax.grid()
         
         # Convert fom to a numpy array for easier manipulation
@@ -254,7 +259,7 @@ class Plotter():
         # Return cut information
         return optimal_cut, fom[max_fom_index]
 
-    def plotStep(self, var, cuts, myrange, nbins = 100, xlabel = ''):
+    def plotStep(self, var, cuts, myrange = (), nbins = 100, xlabel = ''):
 
         '''Function to plot an unstacked step histogram for a variable, which is useful in cases where you do not 
         need to see the individual background types and/or the signal is hidden underneath a sea of background.
@@ -278,6 +283,10 @@ class Plotter():
         # Define bkg/true numpy arrays
         npbkg = df_bkg.query(f'{cuts} and {self.isSigvar} != 1')[var].to_numpy()
         npsig = self.signaldf.query(f'{cuts} and {self.isSigvar} == 1')[var].to_numpy()
+
+        if myrange == ():
+            # Calculate the dynamic range for the variable based on the data within the specified cuts
+            myrange = (numpy.min(npbkg), numpy.max(npbkg))
 
         # Create the histogram
         ax.hist([npbkg, npsig], bins = nbins, range = myrange, label =  ['bkg', 'signal'], histtype = 'step', stacked = False)
@@ -304,8 +313,8 @@ class Plotter():
 
         df_bkg = pd.concat(self.mcdfs)
 
-        npsig = self.signaldf.query(f'{signalregion[0]} < {massvar} < {signalregion[1]} and {cuts} and {self.isSigvar} == 1').to_numpy()
-        npbkg = df_bkg.query(f'{signalregion[0]} < {massvar} < {signalregion[1]} and {cuts} and {self.isSigvar} != 1')[massVar].to_numpy()
+        npsig = self.signaldf.query(f'{signalregion[0]} < {massvar} < {signalregion[1]} and {cuts} and {self.isSigvar} == 1')[massvar].to_numpy()
+        npbkg = df_bkg.query(f'{signalregion[0]} < {massvar} < {signalregion[1]} and {cuts} and {self.isSigvar} != 1')[massvar].to_numpy()
 
         sig_events, bkg_events = len(npsig), len(npbkg)
         total_events = sig_events + bkg_events
@@ -355,14 +364,16 @@ def main():
     # Define frequent variables
     xicmassrangeloose = 'xic_M > 2.3 & xic_M < 2.65'
     xicmassrangetight = 'xic_M > 2.46 & xic_M < 2.475'
-    chicut = 'xic_chiProb > 0.001'
+    testcut = 'lambda0_p_protonID > 0.9'
 
     # Initialize plotter object 
     plotter = Plotter(isSigvar = 'xic_isSignal', mcdfs = dfs, signaldf = df_mc, interactive = False)
 
+    print(f'Signal efficiency of {testcut} is {plotter.get_sigeff(testcut, "xic_M", signalregion = (2.46, 2.475))}')
+
     # Plot 
-    for variable in vars_of_interest:
-        plotter.plot(variable, cuts = xicmassrangeloose)
+   # for variable in vars_of_interest:
+   #     plotter.plot(variable, cuts = xicmassrangeloose)
 
 
     

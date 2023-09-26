@@ -5,6 +5,11 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ## Releases
 
+### Version 1.0.8
+- Implement dynamic range calculation in plotStep 
+- Bugfix labels not showing up on plotFom for myrange = () (default)
+- Bugfix get_sigeff (missing period)
+
 ### Version 1.0.7
 - Bugfix (remove () from numpy.size, as size is a property, not a method)
 
