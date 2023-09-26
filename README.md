@@ -5,6 +5,9 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ## Releases
 
+### Version 1.0.7
+- Bugfix (remove () from numpy.size, as size is a property, not a method)
+
 ### Version 1.0.6
 - Remove deprecated var total_bkg from plotFom()
 

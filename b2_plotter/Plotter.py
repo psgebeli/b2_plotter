@@ -166,7 +166,7 @@ class Plotter():
 
 
         # Store the total amount of sig events in the signal region by the size of the numpy array
-        total_sig = np_sig.size()
+        total_sig = np_sig.size
 
         if myrange == ():
             # Calculate the dynamic range for the variable based on the data within the specified cuts
