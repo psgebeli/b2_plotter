@@ -5,6 +5,9 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ## Releases
 
+### Version 1.0.9
+- Set myrange = () in plotFom to enable the dynamic range calculation from v.1.0.5 if the user does not provide a range.
+
 ### Version 1.0.8
 - Implement dynamic range calculation in plotStep 
 - Bugfix labels not showing up on plotFom for myrange = () (default)

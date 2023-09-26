@@ -133,7 +133,7 @@ class Plotter():
             plt.show()
 
 
-    def plotFom(self, var, massvar, myrange, signalregion, isGreaterThan = True, nbins = 100, xlabel = ''):
+    def plotFom(self, var, massvar, signalregion, myrange = (), isGreaterThan = True, nbins = 100, xlabel = ''):
 
         '''Function to plot the figure of merit for cuts on a particular variable,
         where FOM = sqrt[signalevents/(signalevents + bkgevents)]. The maximum
