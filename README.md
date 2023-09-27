@@ -7,6 +7,7 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ### Version 2.0.1
 - Implement data plotting in plot()
+- Work on unit test
 
 ### Version 1.0.9
 - Set myrange = () in plotFom to enable the dynamic range calculation from v.1.0.5 if the user does not provide a range.
