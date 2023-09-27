@@ -9,11 +9,11 @@ mycols= ['xic_M', 'xic_significanceOfDistance','xi_significanceOfDistance',
 xicmassrangeloose = '2.3 < xic_M < 2.65'
 df_ccbar = rp.read_root(ccbar, key='xic_tree', columns = mycols)
 
+plotter = Plotter(isSigvar='xic_isSignal', mcdfs={'ccbar': df_ccbar}, signaldf = df_ccbar, interactive = False)
+
 def test_constructor():
 
-    
-
-    assert Plotter(isSigvar='xic_isSignal', mcdfs={'ccbar': df_ccbar}, signaldf = df_ccbar, interactive = False)
+    assert isinstance(plotter, Plotter)
 
 def test_plot():
     
