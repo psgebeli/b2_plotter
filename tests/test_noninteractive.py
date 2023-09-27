@@ -18,5 +18,5 @@ def test_constructor():
 def test_plot():
     
     for var in mycols[:-3]:
-        Plotter.plot(var, cuts = xicmassrangeloose)
+        plotter.plot(var, cuts = xicmassrangeloose)
         assert os.path.isfile(f'xic_{var}.png')
