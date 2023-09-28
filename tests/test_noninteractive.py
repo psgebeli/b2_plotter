@@ -28,4 +28,4 @@ def test_plotFom():
 def test_plotStep():
     for var in mycols[:-3]:
         plotter.plotStep(var, cuts = xicmassrangeloose)
-        assert os.path.isfile(f'plot_{var}.png')
+        assert os.path.isfile(f'step_{var}.png')
