@@ -29,3 +29,9 @@ def test_plotStep():
     for var in mycols[:-3]:
         plotter.plotStep(var, cuts = xicmassrangeloose)
         assert os.path.isfile(f'step_{var}.png')
+
+def test_getpurity():
+    assert isinstance(plotter.get_purity(xicmassrangeloose, 'xic_M', (2.46, 2.475)), float)
+
+def test_getsigeff():
+    assert isinstance(plotter.get_sigeff(xicmassrangeloose, 'xic_M', (2.46, 2.475)), float)

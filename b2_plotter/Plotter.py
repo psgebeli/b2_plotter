@@ -134,7 +134,7 @@ class Plotter():
         plt.xlabel(var) if xlabel == '' else plt.xlabel(xlabel)
         plt.legend()
 
-        # If the session is not interactive, save the plot in a directory called plots and name it var.png. Otherwise, show it.
+        # If the session is not interactive, save the plot in var.png. Otherwise, show it.
         if not self.interactive:
             plt.savefig(f'plot_{var}.png')
             plt.close()
@@ -263,7 +263,7 @@ class Plotter():
         optimal_cut = testcuts[max_fom_index]
 
         # Save as png if the session is not interactive, otherwise show
-        plt.savefig(f'fom_{var}.png') if not self.interactive else plt.show()
+        plt.savefig(f'fom_{var}.png') and plt.close() if not self.interactive else plt.show()
 
         # Return cut information
         return optimal_cut, fom[max_fom_index]
@@ -307,7 +307,7 @@ class Plotter():
         
         # Create a legend and show plot
         plt.legend()
-        plt.savefig(f'step_{var}.png') if not self.interactive else plt.show()
+        plt.savefig(f'step_{var}.png') and plt.close() if not self.interactive else plt.show()
 
     def get_purity(self, cuts, massvar, signalregion):
         
