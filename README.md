@@ -5,6 +5,10 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ## Releases
 
+
+### Version 2.0.2
+- Implement unit tests for constructor TypeError raises
+
 ### Version 2.0.1
 - Implement data plotting in plot()
 - Implement unit tests for functions in non-interactive mode

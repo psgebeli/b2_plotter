@@ -30,6 +30,8 @@ class Plotter():
         # Error checking. Check type of each parameter. If it doesnt match expectations, raise a typeerror
         if isinstance(mcdfs, dict):
             for label, df in mcdfs.items():
+                if not isinstance(label, str):
+                    raise TypeError(f'The key associated with the value {df} is not a str.')
                 if not isinstance(df, pd.DataFrame):
                     raise TypeError(f'The value associated with the key "{label}" is not a pandas DataFrame')
             self.mcdfs = mcdfs
