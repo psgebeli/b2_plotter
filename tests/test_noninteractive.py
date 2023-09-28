@@ -24,3 +24,8 @@ def test_plotFom():
         optimal, fommax = plotter.plotFom(var, massvar = 'xic_M', signalregion = (2.46, 2.475))
         assert os.path.isfile(f'fom_{var}.png')
         assert isinstance(optimal, float) and isinstance(fommax, float)
+
+def test_plotStep():
+    for var in mycols[:-3]:
+        plotter.plotStep(var, cuts = xicmassrangeloose)
+        assert os.path.isfile(f'plot_{var}.png')

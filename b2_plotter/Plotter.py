@@ -307,7 +307,7 @@ class Plotter():
         
         # Create a legend and show both of the plots
         plt.legend()
-        plt.savefig(f'step_plots/{var}') if not self.interactive else plt.show()
+        plt.savefig(f'step_{var}') if not self.interactive else plt.show()
 
     def get_purity(self, cuts, massvar, signalregion):
         
