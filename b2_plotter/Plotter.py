@@ -305,7 +305,7 @@ class Plotter():
         plt.xlim(myrange)
         plt.xlabel(var) if xlabel == '' else plt.xlabel(xlabel)
         
-        # Create a legend and show both of the plots
+        # Create a legend and show plot
         plt.legend()
         plt.savefig(f'step_{var}.png') if not self.interactive else plt.show()
 
@@ -378,12 +378,8 @@ def main():
     # Initialize plotter object 
     plotter = Plotter(isSigvar = 'xic_isSignal', mcdfs = dfs, signaldf = df_mc, interactive = False)
 
-    print(f'Signal efficiency of {testcut} is {plotter.get_sigeff(testcut, "xic_M", signalregion = (2.46, 2.475))}')
-
-    # Plot 
-   # for variable in vars_of_interest:
-   #     plotter.plot(variable, cuts = xicmassrangeloose)
-
+    # test step 
+    plotter.plotStep('xic_M', xicmassrangeloose)
 
     
 
