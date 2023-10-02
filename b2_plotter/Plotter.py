@@ -3,7 +3,10 @@
 import numpy
 import matplotlib.pyplot as plt 
 import root_pandas 
-import pandas as pd 
+import pandas as pd
+import argparse
+import os
+import root_pandas as rp
 
 class Plotter():
 
@@ -265,7 +268,7 @@ class Plotter():
         optimal_cut = testcuts[max_fom_index]
 
         # Save as png if the session is not interactive, otherwise show
-        plt.savefig(f'fom_{var}.png') and plt.close() if not self.interactive else plt.show()
+        plt.savefig(f'fom_{var}_{isGreaterThan}.png') and plt.close() if not self.interactive else plt.show()
 
         # Return cut information
         return optimal_cut, fom[max_fom_index]
@@ -350,45 +353,79 @@ class Plotter():
 
 def main():
     
-    # Define input files 
-    infiles = {'ccbar' : '../../samples/gmc/mc15rib/xipipi/skimmed/ccbar_skimmed.root',
-               'uubar' : '../../samples/gmc/mc15rib/xipipi/skimmed/uubar_skimmed.root',
-               'ssbar' : '../../samples/gmc/mc15rib/xipipi/skimmed/ssbar_skimmed.root',
-               'ddbar' : '../../samples/gmc/mc15rib/xipipi/skimmed/ddbar_skimmed.root'
-    }
-
-    # Define variables to read in to dataframes (to reduce run time/memory)
-    mycols= ['xic_M', 'xic_significanceOfDistance','xi_significanceOfDistance',
-             'lambda0_p_protonID', 'xi_M', 'xic_mcFlightTime', 'xic_chiProb', 'xic_isSignal']
+    # Hard coded columns
+    cols = ['xic_significanceOfDistance','xi_significanceOfDistance', 'lambda0_p_protonID', 
+            'xi_M', 'xic_mcFlightTime', 'xic_chiProb', 'xic_M','xic_isSignal'] 
     
-    # Define variables of interest (everything we read in excluding chiprob and issignal)
-    vars_of_interest = mycols[:-3]
-
-    # Empty dict for dataframes
-    dfs = {}
-
-    # Make dataframes 
-    for qqbar, path in infiles.items():
-        dfs[qqbar] = root_pandas.read_root(path, key = 'xic_tree', columns = mycols)
-    df_mc = pd.concat(df for df in dfs.values())
-
-    # Define frequent variables
-    xicmassrangeloose = 'xic_M > 2.3 & xic_M < 2.65'
-    xicmassrangetight = 'xic_M > 2.46 & xic_M < 2.475'
-    testcut = 'lambda0_p_protonID > 0.9'
-
-    # Initialize plotter object 
-    plotter = Plotter(isSigvar = 'xic_isSignal', mcdfs = dfs, signaldf = df_mc, interactive = False)
-
-    # test step 
-    plotter.plotStep('xic_M', xicmassrangeloose)
-
+    # Frequently used vars 
+    xicmassrangeloose = '2.3 < xic_M < 2.65'
+    xicmassrangetight = '2.46 < xic_M < 2.475'
     
+    # Parse the cmd line and store the arguments as variables
+    args = parse_cmd()
+    mcpath, datapath, isSigvar = args.input, args.data, args.signalvar 
+
+    # Call construct_dfs with these columns and store return values 
+    mcdfs, datadf = construct_dfs(mcpath, datapath, cols)
+
+    # Construct a plotter object 
+    plotter = Plotter(isSigvar = isSigvar, mcdfs = mcdfs, signaldf = pd.concat(mcdfs.values()), datadf = datadf, interactive = False)
+
+    for var in cols[:-3]:
+        plotter.plot(var, xicmassrangeloose, (), 100, False, '', 1, 1)
+        plotter.plotFom(var, 'xic_M', (2.46, 2.475), (), True, 100, '')
+        plotter.plotFom(var, 'xic_M', (2.46, 2.475), (), False, 100, '')
 
 
+
+# Read in args from cmd line
+def parse_cmd():
+    
+    # Create an argument parser from argparse with a usage statement
+    parser = argparse.ArgumentParser(usage = 'python3 Plotter.py -i path/to/MC [-d path/to/data] -s name_of_isSignal_var ')
+
+    # Search the command line for arguments following these flags and provide help statement for 
+    # python3 Plotter.py --help 
+    parser.add_argument('-i', '--input', help = 'Relative path to MC root file DIRECTORY', type = str)
+    parser.add_argument('-d', '--data', default = '', help = 'Relative path to data root FILE', type = str)
+    parser.add_argument('-s', '--signalvar', help = 'Full name of your tree`s isSignal variable', type = str)
+
+    # Return the parsed arguments
+    return parser.parse_args()
+
+# Construct dataframes
+def construct_dfs(mcpath, datapath, mycols):
+    
+    # Initialize an empty dictionary to hold monte carlo dataframes
+    mcdfs = {}
+
+    # For each file in the provided MC path
+    for mcfile in os.listdir(mcpath):
+
+        # If it ends with .root
+        if mcfile.endswith('.root'):
+
+            # Create the full path including the file's name
+            path = os.path.join(mcpath, mcfile)
+
+            # Constract a pandas dataframe with that file 
+            df = rp.read_root(path, key = 'xic_tree', columns = mycols)
+
+            # Create a pair in the mcdfs dictionary of filename : df
+            mcdfs[mcfile] = df
+
+    # Create the data df if a data path is provided
+    if datapath != '':
+        datadf = rp.read_root(datapath, key = 'xic_tree', columns = mycols)
+    else: 
+        datadf = None 
+
+    # Return the dict of mc dfs and the single data df 
+    return mcdfs, datadf         
+
+
+def funct3():
+    ...
 
 if __name__ == '__main__':
     main()
-
-
-
