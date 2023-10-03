@@ -271,7 +271,7 @@ class Plotter():
         plt.savefig(f'fom_{var}_{isGreaterThan}.png') and plt.close() if not self.interactive else plt.show()
 
         # Return cut information
-        return optimal_cut, fom[max_fom_index]
+        return optimal_cut 
 
     def plotStep(self, var, cuts, myrange = (), nbins = 100, xlabel = ''):
 
@@ -371,11 +371,19 @@ def main():
     # Construct a plotter object 
     plotter = Plotter(isSigvar = isSigvar, mcdfs = mcdfs, signaldf = pd.concat(mcdfs.values()), datadf = datadf, interactive = False)
 
+    # For each variable in columns besides the last 3 (not useful to plot)
     for var in cols[:-3]:
-        plotter.plot(var, xicmassrangeloose, (), 100, False, '', 1, 1)
-        plotter.plotFom(var, 'xic_M', (2.46, 2.475), (), True, 100, '')
-        plotter.plotFom(var, 'xic_M', (2.46, 2.475), (), False, 100, '')
 
+        # Plot it
+        plotter.plot(var, xicmassrangeloose, (), 100, False, '', 1, 1)
+
+        # Get the optimal upper/lower bound cuts for that variable
+        optimal_cut_upper = plotter.plotFom(var, 'xic_M', (2.46, 2.475), (), True, 100, '')
+        optimal_cut_lower = plotter.plotFom(var, 'xic_M', (2.46, 2.475), (), False, 100, '')
+
+        # Create (or open if already exists) a txt file and append the optimal cut for the variable to it
+        with open('optimal_cuts.txt', 'a') as file:
+            file.write(f"Optimal cut: {optimal_cut_lower} < {var} < {optimal_cut_upper}\n")
 
 
 # Read in args from cmd line
