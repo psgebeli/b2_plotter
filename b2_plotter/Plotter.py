@@ -351,15 +351,18 @@ class Plotter():
 
         return sig_after / sig_before * 100
 
+
+
+# Hard coded columns
+cols = ['xic_significanceOfDistance','xi_significanceOfDistance', 'lambda0_p_protonID', 
+        'xi_M', 'xic_mcFlightTime', 'xic_chiProb', 'xic_M','xic_isSignal'] 
+    
+# Frequently used vars 
+xicmassrangeloose = '2.3 < xic_M < 2.65'
+xicmassrangetight = '2.46 < xic_M < 2.475'
+
+
 def main():
-    
-    # Hard coded columns
-    cols = ['xic_significanceOfDistance','xi_significanceOfDistance', 'lambda0_p_protonID', 
-            'xi_M', 'xic_mcFlightTime', 'xic_chiProb', 'xic_M','xic_isSignal'] 
-    
-    # Frequently used vars 
-    xicmassrangeloose = '2.3 < xic_M < 2.65'
-    xicmassrangetight = '2.46 < xic_M < 2.475'
     
     # Parse the cmd line and store the arguments as variables
     args = parse_cmd()
@@ -371,15 +374,34 @@ def main():
     # Construct a plotter object 
     plotter = Plotter(isSigvar = isSigvar, mcdfs = mcdfs, signaldf = pd.concat(mcdfs.values()), datadf = datadf, interactive = False)
 
-    # For each variable in columns besides the last 3 (not useful to plot)
-    for var in cols[:-3]:
+    # For each variable in a particular slice of the columns (ive omitted the last 4 vars)
+    for var in cols[:-4]:
 
-        # Plot it
+        # Create plots 
         plotter.plot(var, xicmassrangeloose, (), 100, False, '', 1, 1)
+        upper = plotter.plotFom(var, 'xic_M', (2.46, 2.475), (), True, 100, '')
+        lower = plotter.plotFom(var, 'xic_M', (2.46, 2.475), (), False, 100, '')
 
-        # Get the optimal upper/lower bound cuts for that variable
-        optimal_cut_upper = plotter.plotFom(var, 'xic_M', (2.46, 2.475), (), True, 100, '')
-        optimal_cut_lower = plotter.plotFom(var, 'xic_M', (2.46, 2.475), (), False, 100, '')
+
+        # Open a file called cuts.txt in append mode
+        with open('cuts.txt', 'a') as file:
+
+            # If the upper bound cut and lower bound cuts are useful, append cut1 < var < cut2 to file 
+            if is_useful(f'{var} < {upper}') and is_useful(f'{var} > {lower}'):
+                file.append(f'Optimal cut: {lower} < {var} < {upper}\n')
+            
+            # If the upper bound is useful but the lower bound isnt, just append var < cut2
+            elif is_useful(f'{var} < {upper}') and not is_useful(f'{var} > {lower}'):
+                file.append(f'Optimal cut: {var} < {upper}')
+
+            # Similarly 
+            elif is_useful(f'{var} > {lower}') and not is_useful(f'{var} < {upper}'):
+                file.append(f'Optimal cut: {lower} < {var}')
+            else:
+                file.append(f'Give up on {var}.')
+            
+            
+
 
         # Create (or open if already exists) a txt file and append the optimal cut for the variable to it
         with open('optimal_cuts.txt', 'a') as file:
@@ -432,8 +454,13 @@ def construct_dfs(mcpath, datapath, mycols):
     return mcdfs, datadf         
 
 
-def funct3():
-    ...
+def is_useful(cut):
+
+    # Purity before cuts
+    p0 = Plotter.get_purity(xicmassrangeloose, 'xic_M')
+    
+    # If the purity increases by atleast 0.3 and the signal efficiency is atleast 80 for a cut, return True
+    return (Plotter.get_purity(cut, 'xic_M', (2.46, 2.475) - p0 > 0.3) and Plotter.get_sigeff(cut, 'xic_M', (2.46, 2.475)) > 80)
 
 if __name__ == '__main__':
     main()

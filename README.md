@@ -6,6 +6,9 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 ## Releases
 
 
+### Version 2.0.3
+- Bugfix call to numpy.histogram() (was called np.histogram)
+
 ### Version 2.0.2
 - Implement unit tests for constructor TypeError raises
 
