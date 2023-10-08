@@ -119,7 +119,7 @@ class Plotter():
         
         # Create stacked matplotlib histogram
         if self.datadf is not None:
-            ydata, bin_edges = np.histogram(npdata, bins=nbins, range=myrange)
+            ydata, bin_edges = numpy.histogram(npdata, bins=nbins, range=myrange)
             ax.hist(list(mcnps.values()), bins = nbins, range = myrange,
                     label = list(mcnps.keys()),
                     weights = list(wnps.values()),
