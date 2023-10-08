@@ -401,10 +401,7 @@ FodyWeavers.xsd
 dist/
 
 # Ipynb checkpoints 
-.ipynb_checkpoints/
-
-# Pycache 
-__pycache__/
+b2_plotter/.ipynb_checkpoints/
 
 # Pytest cache 
 .pytest_cache/
