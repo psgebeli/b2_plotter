@@ -5,6 +5,9 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ## Releases
 
+### Version 2.0.3a
+- Last push didnt include changes, so this version is the final version of 2.0.3
+- Add dist/, .pytest_cache, and .ipynb_checkpoints to git ignore 
 
 ### Version 2.0.3
 - Bugfix call to numpy.histogram() (was called np.histogram)
