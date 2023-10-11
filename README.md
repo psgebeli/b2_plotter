@@ -5,8 +5,11 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ## Releases
 
-### Version 2.0.3a
-- Last push didnt include changes, so this version is the final version of 2.0.3
+### Version 2.0.5
+- Add `cuts` argument to `plotFom`
+
+### Version 2.0.4
+- Last push didnt include changes, so include bugfix
 - Add dist/, .pytest_cache, and .ipynb_checkpoints to git ignore 
 
 ### Version 2.0.3

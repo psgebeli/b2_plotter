@@ -147,7 +147,7 @@ class Plotter():
             plt.show()
 
 
-    def plotFom(self, var, massvar, signalregion, myrange = (), isGreaterThan = True, nbins = 100, xlabel = ''):
+    def plotFom(self, var, massvar, signalregion, cuts, myrange = (), isGreaterThan = True, nbins = 100, xlabel = ''):
 
         '''Function to plot the figure of merit for cuts on a particular variable,
         where FOM = sqrt[signalevents/(signalevents + bkgevents)]. The maximum
@@ -163,7 +163,9 @@ class Plotter():
         :type myrange: tuple 
         :param signalregion: The signal region for the mass of your particular
         particle -- used to calculate purity and signal efficiency.
-        :type signalregion: tuple 
+        :type signalregion: tuple
+        :param cuts: Cuts to be applied before the FOM is generated
+        :type cuts: str
         :param isGreaterThan: Expresses whether to apply testcuts where var > value, or greater than cuts
         :type isGreaterThan: bool
         :param nbins: The number of bins 
@@ -175,8 +177,8 @@ class Plotter():
         df_bkg = pd.concat(self.mcdfs)
 
         # Store the total signal and background as numpy arrays
-        np_bkg = df_bkg.query(f'{signalregion[0]} < {massvar} < {signalregion[1]} and {self.isSigvar} != 1')[var].to_numpy()
-        np_sig = self.signaldf.query(f'{signalregion[0]} < {massvar} < {signalregion[1]} and {self.isSigvar} == 1')[var].to_numpy()
+        np_bkg = df_bkg.query(f'{cuts} and {signalregion[0]} < {massvar} < {signalregion[1]} and {self.isSigvar} != 1')[var].to_numpy()
+        np_sig = self.signaldf.query(f'{cuts} and {signalregion[0]} < {massvar} < {signalregion[1]} and {self.isSigvar} == 1')[var].to_numpy()
 
 
         # Store the total amount of sig events in the signal region by the size of the numpy array
@@ -202,9 +204,9 @@ class Plotter():
             # If the paramater isGreaterThan is True, the global cut is var > value. Otherwise, its var < value.
             # The global cuts is a string of this cut as well as constraining the mass to the signal region.
             if isGreaterThan:
-                globalcuts = f'{signalregion[0]} < {massvar} < {signalregion[1]} and {var} > {testcut}'
+                globalcuts = f'{cuts} and {signalregion[0]} < {massvar} < {signalregion[1]} and {var} > {testcut}'
             else:
-                globalcuts = f'{signalregion[0]} < {massvar} < {signalregion[1]} and {var} < {testcut}'
+                globalcuts = f'{cuts} and {signalregion[0]} < {massvar} < {signalregion[1]} and {var} < {testcut}'
             
             # Append the size of the array after the constraints to the globalsig/globalbkg lists respectively
             globalsig.append(self.signaldf.query(f'{globalcuts} and {self.isSigvar} == 1')[var].to_numpy().size)
