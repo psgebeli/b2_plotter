@@ -5,6 +5,10 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ## Releases
 
+### Version 2.0.6
+- Change functions to return plots instead of displaying them, and remove interactive feature
+- Add a scaled signal histogram to the plot function
+
 ### Version 2.0.5
 - Add `cuts` argument to `plotFom`
 

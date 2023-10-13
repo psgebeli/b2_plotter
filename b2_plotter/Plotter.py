@@ -10,7 +10,7 @@ import root_pandas as rp
 
 class Plotter():
 
-    def __init__(self, isSigvar: str, mcdfs: dict, signaldf: pd.DataFrame, datadf: pd.DataFrame = None, interactive: bool = True):
+    def __init__(self, isSigvar: str, mcdfs: dict, signaldf: pd.DataFrame, datadf: pd.DataFrame = None):
         
         '''
         Initialize a plotter object upon constructor call.
@@ -23,8 +23,6 @@ class Plotter():
         :type signaldf: pandas dataframe
         :param datadf: Data dataframe constructed with root_pandas
         :type datadf: pandas dataframe
-        :param interactive: Decides whether or not to show the plots interactively or to save them as output files
-        :type interactive: bool
         
 
         :raise TypeError: If any parameters dont match expected type
@@ -58,11 +56,6 @@ class Plotter():
             self.isSigvar = isSigvar
         else:
             raise TypeError('isSigvar is not a string.')
-        
-        if isinstance(interactive, bool):
-            self.interactive = interactive
-        else:
-            raise TypeError('Interactive is not a boolean expression.')
         
     def plot(self, var, cuts, myrange = (), nbins = 100, isLog = False, xlabel = '', scale = 1, bgscale = 1):
 
@@ -112,6 +105,8 @@ class Plotter():
             else:
                 wnps['signal'] = [scale] * len(np)
 
+        scaledsig = 10 * mcnps['signal']
+
         if myrange == ():
             # Calculate the dynamic range for the variable based on the data within the specified cuts
             all_data = numpy.concatenate(list(mcnps.values()))
@@ -126,12 +121,15 @@ class Plotter():
                     stacked = True)
             bin_centers = 0.5*(bin_edges[1:] + bin_edges[:-1])
             ax.errorbar(bin_centers, ydata, yerr = ydata**0.5, fmt='ko', label="Data")
+            # Add a red line for the scaled signal data
+            ax.plot(bin_centers, scaledsig color='red', label=f'Signal (scaled x10)')
         else:
             ax.hist(list(mcnps.values()), bins = nbins, range = myrange,
                     label = list(mcnps.keys()),
                     weights = list(wnps.values()),
                     stacked = True)
-        
+            bin_centers = 0.5*(bin_edges[1:] + bin_edges[:-1])
+            ax.plot(bin_centers, scaledsig color='red', label=f'Signal (scaled x10)')
         # Plot features 
         plt.yscale('log') if isLog else plt.yscale('linear')
         plt.xlim(myrange)
@@ -139,12 +137,7 @@ class Plotter():
         plt.xlabel(var) if xlabel == '' else plt.xlabel(xlabel)
         plt.legend()
 
-        # If the session is not interactive, save the plot in var.png. Otherwise, show it.
-        if not self.interactive:
-            plt.savefig(f'plot_{var}.png')
-            plt.close()
-        else:
-            plt.show()
+        return plt
 
 
     def plotFom(self, var, massvar, signalregion, cuts, myrange = (), isGreaterThan = True, nbins = 100, xlabel = ''):
@@ -269,11 +262,7 @@ class Plotter():
         # Get the corresponding test cut value at the maximum FOM
         optimal_cut = testcuts[max_fom_index]
 
-        # Save as png if the session is not interactive, otherwise show
-        plt.savefig(f'fom_{var}_{isGreaterThan}.png') and plt.close() if not self.interactive else plt.show()
-
-        # Return cut information
-        return optimal_cut 
+        return plt, optimal_cut
 
     def plotStep(self, var, cuts, myrange = (), nbins = 100, xlabel = ''):
 
@@ -314,7 +303,8 @@ class Plotter():
         
         # Create a legend and show plot
         plt.legend()
-        plt.savefig(f'step_{var}.png') and plt.close() if not self.interactive else plt.show()
+        
+        return plt
 
     def get_purity(self, cuts, massvar, signalregion):
         
