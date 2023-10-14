@@ -349,15 +349,15 @@ class Plotter():
 # ----------------------------------------------------------------------------------------------------------------------------
 
 # Hard coded columns
-cols = ['xic_significanceOfDistance','xi_significanceOfDistance', 'lambda0_p_protonID', 
-        'xi_M', 'xic_mcFlightTime', 'xic_M','xic_isSignal'] 
+cols = ['xipipi_xi_significanceOfDistance','xipipi_lambda_significanceOfDistance', 'xipipi_lambda_p_protonID_noSVD', 
+        'xipipi_xi_M', 'xipipi_xic_M','xipipi_xic_isSignal'] 
     
 # Frequently used vars 
 xicmassrangeloose = '2.3 < xic_M < 2.65'
 xicmassrangetight = '2.46 < xic_M < 2.475'
 
 # Vars that could potentially be useful 
-potentially_useful_vars = cols[:-3]
+potentially_useful_vars = cols[:-2]
 
 
 def main():
