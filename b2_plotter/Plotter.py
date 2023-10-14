@@ -177,9 +177,11 @@ class Plotter():
         # Store the total amount of sig events in the signal region by the size of the numpy array
         total_sig = np_sig.size
 
-        if myrange == ():
+        if myrange == () and isGreaterThan:
             # Calculate the dynamic range for the variable based on the data within the specified cuts
             myrange = (numpy.min(np_sig), numpy.max(np_sig))
+        elif myrange == () and not isGreaterThan:
+            myrange = (numpy.min(np_sig) + (numpy.max(np_sig) / 10), numpy.max(np_sig))
 
         # Initialize empty lists for testcuts, number of background/sig events after some global cut has been applied, and the figure of merit values
         testcuts, globalsig, globalbkg, fom = [], [], [], []
@@ -344,6 +346,7 @@ class Plotter():
         return sig_after / sig_before * 100
 
 
+# ----------------------------------------------------------------------------------------------------------------------------
 
 # Hard coded columns
 cols = ['xic_significanceOfDistance','xi_significanceOfDistance', 'lambda0_p_protonID', 
@@ -352,6 +355,9 @@ cols = ['xic_significanceOfDistance','xi_significanceOfDistance', 'lambda0_p_pro
 # Frequently used vars 
 xicmassrangeloose = '2.3 < xic_M < 2.65'
 xicmassrangetight = '2.46 < xic_M < 2.475'
+
+# Vars that could potentially be useful 
+potentially_useful_vars = cols[:-4]
 
 
 def main():
@@ -364,40 +370,32 @@ def main():
     mcdfs, datadf = construct_dfs(mcpath, datapath, cols)
 
     # Construct a plotter object 
-    plotter = Plotter(isSigvar = f'{prefix}_isSignal', mcdfs = mcdfs, signaldf = pd.concat(mcdfs.values()), datadf = datadf, interactive = False)
+    plotter = Plotter(isSigvar = f'{prefix}_isSignal', mcdfs = mcdfs, signaldf = pd.concat(mcdfs.values()), datadf = datadf)
+
+    # Initialize cuts, where good cuts will be appended so that they are included in calculations for subsequent cuts
+    cuts = xicmassrangeloose
 
     # For each variable in a particular slice of the columns (ive omitted the last 4 vars)
-    for var in cols[:-4]:
+    for var in potentially_useful_vars:
 
-        # Create plots 
-        plotter.plot(var, xicmassrangeloose, (), 100, False, '', 1, 1)
-        upper = plotter.plotFom(var, 'xic_M', (2.46, 2.475), (), True, 100, '')
-        lower = plotter.plotFom(var, 'xic_M', (2.46, 2.475), (), False, 100, '')
+        lower, upper = get_optimal_cut(cuts, var, prefix)
 
+        # If the upper bound cut and lower bound cuts are useful, append cut1 < var < cut2 to file 
+        if is_useful(cuts, f'{var} < {upper}', prefix) and is_useful(cuts, f'{var} > {lower}', prefix):
+            cuts += f'and {lower} < {var} < {upper}'
+        
+        # If the upper bound is useful but the lower bound isnt, just append var < cut2
+        elif is_useful(cuts, f'{var} < {upper}', prefix) and not is_useful(cuts, f'{var} > {lower}', prefix):
+            cuts += f'and {var} < {upper}'
 
-        # Open a file called cuts.txt in append mode
-        with open('cuts.txt', 'a') as file:
+        # Similarly 
+        elif is_useful(cuts, f'{var} > {lower}', prefix) and not is_useful(cuts, f'{var} < {upper}', prefix):
+            cuts += f'and {lower} < {var}'
+        else:
+            cuts = cuts
 
-            # If the upper bound cut and lower bound cuts are useful, append cut1 < var < cut2 to file 
-            if is_useful(f'{var} < {upper}') and is_useful(f'{var} > {lower}'):
-                file.append(f'Optimal cut: {lower} < {var} < {upper}\n')
-            
-            # If the upper bound is useful but the lower bound isnt, just append var < cut2
-            elif is_useful(f'{var} < {upper}') and not is_useful(f'{var} > {lower}'):
-                file.append(f'Optimal cut: {var} < {upper}')
-
-            # Similarly 
-            elif is_useful(f'{var} > {lower}') and not is_useful(f'{var} < {upper}'):
-                file.append(f'Optimal cut: {lower} < {var}')
-            else:
-                file.append(f'Give up on {var}.')
-            
-            
-
-
-        # Create (or open if already exists) a txt file and append the optimal cut for the variable to it
-        with open('optimal_cuts.txt', 'a') as file:
-            file.write(f"Optimal cut: {optimal_cut_lower} < {var} < {optimal_cut_upper}\n")
+    print(f'The following sequence of cuts appears to be optimal: {cuts}.')
+    print(f'Applying these cuts yields a purity of {plotter.get_purity(cuts = cuts, massvar = f"{prefix}_M", signalregion = (2.46, 2.475)):.2f}% and a signal retention of {plotter.get_sigeff(cuts = cuts, massvar = f"{prefix}_M", signalregion = (2.46, 2.475)):.2f}% from the reconstructed sample.')
 
 
 # Read in args from cmd line
@@ -448,8 +446,19 @@ def construct_dfs(mcpath, datapath, mycols):
 
 def is_useful(cuts, testcut, prefix):
 
-    # Purity before test cut 
-    p0 = Plotter.get_purity(cuts, massvar = f'{prefix}_M', )
+    # Purity/signal efficiency before test cut 
+    p0 = Plotter.get_purity(cuts, massvar = f'{prefix}_M', signalregion = (2.46, 2.475))
+    s0 = Plotter.get_sigeff(cuts, massvar = f'{prefix}_M', signalregion = (2.46, 2.475))
+
+    # Purity/signal efficiency after test cut 
+    p = Plotter.get_purity(f'{cuts} and {testcut}', massvar = f'{prefix}_M', signalregion = (2.46, 2.475))
+    s = Plotter.get_sigeff(f'{cuts} and {testcut}', massvar = f'{prefix}_M', signalregion = (2.46, 2.475))
+
+    # Return true if the increase in purity is greater than the decrease in signal efficiency
+    return ( (p - p0) > abs(s - s0) )
+
+def get_optimal_cut(cuts, var, prefix):
+    return Plotter.plotFom(var, massvar = f'{prefix}_M', signalregion = (2.46, 2.475), cuts = cuts, isGreaterThan = False)[1], Plotter.plotFom(var, massvar = f'{prefix}_M', signalregion = (2.46, 2.475), cuts = cuts)[1]
 
 if __name__ == '__main__':
     main()

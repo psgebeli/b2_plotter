@@ -8,6 +8,7 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 ### Version 2.0.6
 - Change functions to return plots instead of displaying them, and remove interactive feature
 - Add a scaled signal histogram to the plot function
+- Update dynamic range calculation in plotFom for isGreaterThan = False cuts to prevent division by zero errors
 
 ### Version 2.0.5
 - Add `cuts` argument to `plotFom`
