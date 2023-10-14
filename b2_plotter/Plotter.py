@@ -122,14 +122,14 @@ class Plotter():
             bin_centers = 0.5*(bin_edges[1:] + bin_edges[:-1])
             ax.errorbar(bin_centers, ydata, yerr = ydata**0.5, fmt='ko', label="Data")
             # Add a red line for the scaled signal data
-            ax.plot(bin_centers, scaledsig color='red', label=f'Signal (scaled x10)')
+            ax.plot(bin_centers, scaledsig, color='red', label=f'Signal (scaled x10)')
         else:
             ax.hist(list(mcnps.values()), bins = nbins, range = myrange,
                     label = list(mcnps.keys()),
                     weights = list(wnps.values()),
                     stacked = True)
             bin_centers = 0.5*(bin_edges[1:] + bin_edges[:-1])
-            ax.plot(bin_centers, scaledsig color='red', label=f'Signal (scaled x10)')
+            ax.plot(bin_centers, scaledsig, color='red', label=f'Signal (scaled x10)')
         # Plot features 
         plt.yscale('log') if isLog else plt.yscale('linear')
         plt.xlim(myrange)
@@ -358,13 +358,13 @@ def main():
     
     # Parse the cmd line and store the arguments as variables
     args = parse_cmd()
-    mcpath, datapath, isSigvar = args.input, args.data, args.signalvar 
+    mcpath, datapath, prefix = args.input, args.data, args.prefix
 
     # Call construct_dfs with these columns and store return values 
     mcdfs, datadf = construct_dfs(mcpath, datapath, cols)
 
     # Construct a plotter object 
-    plotter = Plotter(isSigvar = isSigvar, mcdfs = mcdfs, signaldf = pd.concat(mcdfs.values()), datadf = datadf, interactive = False)
+    plotter = Plotter(isSigvar = f'{prefix}_isSignal', mcdfs = mcdfs, signaldf = pd.concat(mcdfs.values()), datadf = datadf, interactive = False)
 
     # For each variable in a particular slice of the columns (ive omitted the last 4 vars)
     for var in cols[:-4]:
@@ -404,13 +404,13 @@ def main():
 def parse_cmd():
     
     # Create an argument parser from argparse with a usage statement
-    parser = argparse.ArgumentParser(usage = 'python3 Plotter.py -i path/to/MC [-d path/to/data] -s name_of_isSignal_var ')
+    parser = argparse.ArgumentParser(usage = 'python3 Plotter.py -i path/to/MC [-d path/to/data] -p xic_prefix_name')
 
     # Search the command line for arguments following these flags and provide help statement for 
     # python3 Plotter.py --help 
     parser.add_argument('-i', '--input', help = 'Relative path to MC root file DIRECTORY', type = str)
     parser.add_argument('-d', '--data', default = '', help = 'Relative path to data root FILE', type = str)
-    parser.add_argument('-s', '--signalvar', help = 'Full name of your tree`s isSignal variable', type = str)
+    parser.add_argument('-p', '--prefix', help = 'Prefix of Xic+ variables', type = str)
 
     # Return the parsed arguments
     return parser.parse_args()
@@ -446,13 +446,10 @@ def construct_dfs(mcpath, datapath, mycols):
     return mcdfs, datadf         
 
 
-def is_useful(cut):
+def is_useful(cuts, testcut, prefix):
 
-    # Purity before cuts
-    p0 = Plotter.get_purity(xicmassrangeloose, 'xic_M')
-    
-    # If the purity increases by atleast 0.3 and the signal efficiency is atleast 80 for a cut, return True
-    return (Plotter.get_purity(cut, 'xic_M', (2.46, 2.475) - p0 > 0.3) and Plotter.get_sigeff(cut, 'xic_M', (2.46, 2.475)) > 80)
+    # Purity before test cut 
+    p0 = Plotter.get_purity(cuts, massvar = f'{prefix}_M', )
 
 if __name__ == '__main__':
     main()
