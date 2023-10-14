@@ -367,7 +367,7 @@ def main():
     mcpath, datapath, prefix = args.input, args.data, args.prefix
 
     # Call construct_dfs with these columns and store return values 
-    mcdfs, datadf = construct_dfs(mcpath, datapath, cols)
+    mcdfs, datadf = construct_dfs(mcpath, datapath, cols, prefix)
 
     # Construct a plotter object 
     plotter = Plotter(isSigvar = f'{prefix}_isSignal', mcdfs = mcdfs, signaldf = pd.concat(mcdfs.values()), datadf = datadf)
@@ -414,7 +414,7 @@ def parse_cmd():
     return parser.parse_args()
 
 # Construct dataframes
-def construct_dfs(mcpath, datapath, mycols):
+def construct_dfs(mcpath, datapath, mycols, prefix):
     
     # Initialize an empty dictionary to hold monte carlo dataframes
     mcdfs = {}
@@ -429,7 +429,7 @@ def construct_dfs(mcpath, datapath, mycols):
             path = os.path.join(mcpath, mcfile)
 
             # Constract a pandas dataframe with that file 
-            df = rp.read_root(path, key = 'xic_tree', columns = mycols)
+            df = rp.read_root(path, key = 'xic_tree', columns = mycols.append(f'{prefix}_isSignal'))
 
             # Create a pair in the mcdfs dictionary of filename : df
             mcdfs[mcfile] = df
