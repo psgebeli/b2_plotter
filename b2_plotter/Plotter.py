@@ -124,8 +124,8 @@ class Plotter():
             ax.hist(list(mcnps.values()), bins = nbins, range = myrange,
                     label = list(mcnps.keys()),
                     weights = list(wnps.values()),
-                    color = ['b', '#ffa500', 'g', 'r', 'c', 'y', '#a52a2a', 'm' ]
-                    stacked = True)
+                    stacked = True,
+                    color = ['b', '#ffa500', 'g', 'r', 'c', 'y', '#a52a2a', 'm' ])
         # Plot features 
         plt.yscale('log') if isLog else plt.yscale('linear')
         plt.xlim(myrange)

@@ -5,6 +5,9 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ## Releases
 
+### Version 2.0.9 
+- 2.0.8 bugfix (missing comma)
+
 ### Version 2.0.8
 - Remove scaled signal feature -- will work on this on a later release
 - Specify the colors of plot() histograms since the signal was defaulting to grey
