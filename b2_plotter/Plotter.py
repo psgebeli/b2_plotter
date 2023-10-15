@@ -345,15 +345,22 @@ class Plotter():
 # ----------------------------------------------------------------------------------------------------------------------------
 
 # Hard coded columns
-cols = ['xipipi_xi_significanceOfDistance','xipipi_lambda_significanceOfDistance', 'xipipi_lambda_p_protonID_noSVD', 
-        'xipipi_xi_M', 'xipipi_xic_M'] 
+cols = ['xi03pi_xi_significanceOfDistance', 'xi03pi_lambda_significanceOfDistance',
+          'xi03pi_xi_flightDistance', 'xi03pi_lambda_flightDistance',
+          'xi03pi_xi_pi0_M',
+          'xi03pi_lambda_p_protonID_noSVD', 'xi03pi_xi_M', 'xi03pi_lambda_M',
+          'xi03pi_gamma1_beamBackgroundSuppression', 'xi03pi_gamma2_beamBackgroundSuppression',
+          'xi03pi_gamma1_fakePhotonSuppression', 'xi03pi_gamma2_fakePhotonSuppression',
+          'xi03pi_gamma1_clusterLAT', 'xi03pi_gamma2_clusterLAT',
+          'xi03pi_gamma1_clusterSecondMoment', 'xi03pi_gamma2_clusterSecondMoment',
+          'xi03pi_xic_isSignal', 'xi03pi_xic_M']
     
 # Frequently used vars 
-xicmassrangeloose = '2.3 < xic_M < 2.65'
-xicmassrangetight = '2.46 < xic_M < 2.475'
+xicmassrangeloose = '2.3 < xi03pi_xic_M < 2.65'
+xicmassrangetight = '2.46 < xi03pi_xic_M < 2.475'
 
 # Vars that could potentially be useful 
-potentially_useful_vars = cols[:-1]
+potentially_useful_vars = cols[:-2]
 
 
 def main():
