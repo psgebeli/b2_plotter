@@ -122,14 +122,14 @@ class Plotter():
             bin_centers = 0.5*(bin_edges[1:] + bin_edges[:-1])
             ax.errorbar(bin_centers, ydata, yerr = ydata**0.5, fmt='ko', label="Data")
             # Add a red line for the scaled signal data
-            ax.plot(bin_centers, scaledsig, color='red', label=f'Signal (scaled x10)')
+            ax.plot(scaledsig, color='red', label=f'Signal (scaled x10)')
         else:
             ax.hist(list(mcnps.values()), bins = nbins, range = myrange,
                     label = list(mcnps.keys()),
                     weights = list(wnps.values()),
                     stacked = True)
             bin_centers = 0.5*(bin_edges[1:] + bin_edges[:-1])
-            ax.plot(bin_centers, scaledsig, color='red', label=f'Signal (scaled x10)')
+            ax.plot(scaledsig, color='red', label=f'Signal (scaled x10)')
         # Plot features 
         plt.yscale('log') if isLog else plt.yscale('linear')
         plt.xlim(myrange)

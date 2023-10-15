@@ -5,6 +5,9 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ## Releases
 
+### Version 2.0.7 
+- Bugfix to version 2.0.6, where scaled signal was not properly showing
+
 ### Version 2.0.6
 - Change functions to return plots instead of displaying them, and remove interactive feature
 - Add a scaled signal histogram to the plot function
