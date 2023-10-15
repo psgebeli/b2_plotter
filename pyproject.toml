@@ -4,7 +4,7 @@ build-backend = 'hatchling.build'
 
 [project]
 name = 'b2_plotter'
-version = '2.0.7'
+version = '2.0.8'
 authors = [
     { name='Paul Gebeline', email='paulgebeline1@gmail.com' }
 ]

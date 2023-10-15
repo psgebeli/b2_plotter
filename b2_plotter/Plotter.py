@@ -105,8 +105,6 @@ class Plotter():
             else:
                 wnps['signal'] = [scale] * len(np)
 
-        scaledsig = 10 * mcnps['signal']
-
         if myrange == ():
             # Calculate the dynamic range for the variable based on the data within the specified cuts
             all_data = numpy.concatenate(list(mcnps.values()))
@@ -118,18 +116,16 @@ class Plotter():
             ax.hist(list(mcnps.values()), bins = nbins, range = myrange,
                     label = list(mcnps.keys()),
                     weights = list(wnps.values()),
-                    stacked = True)
+                    stacked = True, 
+                    color = ['b', '#ffa500', 'g', 'r', 'c', 'y', '#a52a2a', 'm' ])
             bin_centers = 0.5*(bin_edges[1:] + bin_edges[:-1])
             ax.errorbar(bin_centers, ydata, yerr = ydata**0.5, fmt='ko', label="Data")
-            # Add a red line for the scaled signal data
-            ax.plot(scaledsig, color='red', label=f'Signal (scaled x10)')
         else:
             ax.hist(list(mcnps.values()), bins = nbins, range = myrange,
                     label = list(mcnps.keys()),
                     weights = list(wnps.values()),
+                    color = ['b', '#ffa500', 'g', 'r', 'c', 'y', '#a52a2a', 'm' ]
                     stacked = True)
-            bin_centers = 0.5*(bin_edges[1:] + bin_edges[:-1])
-            ax.plot(scaledsig, color='red', label=f'Signal (scaled x10)')
         # Plot features 
         plt.yscale('log') if isLog else plt.yscale('linear')
         plt.xlim(myrange)
