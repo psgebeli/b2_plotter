@@ -434,7 +434,7 @@ def construct_dfs(mcpath, datapath, mycols, prefix):
             path = os.path.join(mcpath, mcfile)
 
             # Constract a pandas dataframe with that file 
-            df = rp.read_root(path, key = 'xic_tree', columns = mycols.append(f'{prefix}_isSignal'))
+            df = rp.read_root(path, key = 'xic_tree', columns = mycols + [f'{prefix}_isSignal'])
 
             # Create a pair in the mcdfs dictionary of filename : df
             mcdfs[mcfile] = df
