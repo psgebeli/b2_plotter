@@ -352,24 +352,25 @@ cols = ['xi03pi_xi_significanceOfDistance', 'xi03pi_lambda_significanceOfDistanc
           'xi03pi_gamma1_beamBackgroundSuppression', 'xi03pi_gamma2_beamBackgroundSuppression',
           'xi03pi_gamma1_fakePhotonSuppression', 'xi03pi_gamma2_fakePhotonSuppression',
           'xi03pi_gamma1_clusterLAT', 'xi03pi_gamma2_clusterLAT',
-          'xi03pi_gamma1_clusterSecondMoment', 'xi03pi_gamma2_clusterSecondMoment',
-          'xi03pi_xic_isSignal', 'xi03pi_xic_M']
+          'xi03pi_gamma1_clusterSecondMoment', 'xi03pi_gamma2_clusterSecondMoment', 'xi03pi_xic_M']
     
 # Frequently used vars 
 xicmassrangeloose = '2.3 < xi03pi_xic_M < 2.65'
 xicmassrangetight = '2.46 < xi03pi_xic_M < 2.475'
 
 # Vars that could potentially be useful 
-potentially_useful_vars = cols[:-2]
+potentially_useful_vars = cols[:-1]
 
 
 def main():
     
     # Parse the cmd line and store the arguments as variables
+    print('Parsing command line...')
     args = parse_cmd()
     mcpath, datapath, prefix = args.input, args.data, args.prefix
 
     # Call construct_dfs with these columns and store return values 
+    print('Constructing dataframes...')
     mcdfs, datadf = construct_dfs(mcpath, datapath, cols, prefix)
 
     # Construct a plotter object 
@@ -379,6 +380,7 @@ def main():
     cuts = xicmassrangeloose
 
     # For each variable in a particular slice of the columns (ive omitted the last 4 vars)
+    print('Checking for optimal selections...')
     for var in potentially_useful_vars:
 
         lower, upper = get_optimal_cut(cuts, var, prefix)
