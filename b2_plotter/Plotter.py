@@ -463,7 +463,7 @@ def is_useful(cuts, testcut, prefix):
     return ( (p - p0) > abs(s - s0) )
 
 def get_optimal_cut(cuts, var, prefix):
-    return Plotter.plotFom(var, massvar = f'{prefix}_M', signalregion = (2.46, 2.475), cuts = cuts, isGreaterThan = False)[1], Plotter.plotFom(var, massvar = f'{prefix}_M', signalregion = (2.46, 2.475), cuts = cuts)[1]
+    return Plotter.plotFom(var = var, massvar = f'{prefix}_M', signalregion = (2.46, 2.475), cuts = cuts, isGreaterThan = False)[1], Plotter.plotFom(var = var, massvar = f'{prefix}_M', signalregion = (2.46, 2.475), cuts = cuts)[1]
 
 if __name__ == '__main__':
     main()
