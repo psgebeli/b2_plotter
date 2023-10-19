@@ -383,18 +383,18 @@ def main():
     print('Checking for optimal selections...')
     for var in potentially_useful_vars:
 
-        lower, upper = get_optimal_cut(cuts, var, prefix)
+        lower, upper = get_optimal_cut(cuts, var, prefix, plotter)
 
         # If the upper bound cut and lower bound cuts are useful, append cut1 < var < cut2 to file 
-        if is_useful(cuts, f'{var} < {upper}', prefix) and is_useful(cuts, f'{var} > {lower}', prefix):
+        if is_useful(cuts, f'{var} < {upper}', prefix, plotter) and is_useful(cuts, f'{var} > {lower}', prefix, plotter):
             cuts += f'and {lower} < {var} < {upper}'
         
         # If the upper bound is useful but the lower bound isnt, just append var < cut2
-        elif is_useful(cuts, f'{var} < {upper}', prefix) and not is_useful(cuts, f'{var} > {lower}', prefix):
+        elif is_useful(cuts, f'{var} < {upper}', prefix, plotter) and not is_useful(cuts, f'{var} > {lower}', prefix, plotter):
             cuts += f'and {var} < {upper}'
 
         # Similarly 
-        elif is_useful(cuts, f'{var} > {lower}', prefix) and not is_useful(cuts, f'{var} < {upper}', prefix):
+        elif is_useful(cuts, f'{var} > {lower}', prefix, plotter) and not is_useful(cuts, f'{var} < {upper}', prefix, plotter):
             cuts += f'and {lower} < {var}'
         else:
             cuts = cuts
@@ -449,21 +449,21 @@ def construct_dfs(mcpath, datapath, mycols, prefix):
     return mcdfs, datadf         
 
 
-def is_useful(cuts, testcut, prefix):
+def is_useful(cuts, testcut, prefix, plotter):
 
     # Purity/signal efficiency before test cut 
-    p0 = Plotter.get_purity(cuts, massvar = f'{prefix}_M', signalregion = (2.46, 2.475))
-    s0 = Plotter.get_sigeff(cuts, massvar = f'{prefix}_M', signalregion = (2.46, 2.475))
+    p0 = plotter.get_purity(cuts, massvar = f'{prefix}_M', signalregion = (2.46, 2.475))
+    s0 = plotter.get_sigeff(cuts, massvar = f'{prefix}_M', signalregion = (2.46, 2.475))
 
     # Purity/signal efficiency after test cut 
-    p = Plotter.get_purity(f'{cuts} and {testcut}', massvar = f'{prefix}_M', signalregion = (2.46, 2.475))
-    s = Plotter.get_sigeff(f'{cuts} and {testcut}', massvar = f'{prefix}_M', signalregion = (2.46, 2.475))
+    p = plotter.get_purity(f'{cuts} and {testcut}', massvar = f'{prefix}_M', signalregion = (2.46, 2.475))
+    s = plotter.get_sigeff(f'{cuts} and {testcut}', massvar = f'{prefix}_M', signalregion = (2.46, 2.475))
 
     # Return true if the increase in purity is greater than the decrease in signal efficiency
     return ( (p - p0) > abs(s - s0) )
 
-def get_optimal_cut(cuts, var, prefix):
-    return Plotter.plotFom(var = var, massvar = f'{prefix}_M', signalregion = (2.46, 2.475), cuts = cuts, isGreaterThan = False)[1], Plotter.plotFom(var = var, massvar = f'{prefix}_M', signalregion = (2.46, 2.475), cuts = cuts)[1]
+def get_optimal_cut(cuts, var, prefix, plotter):
+    return plotter.plotFom(var = var, massvar = f'{prefix}_M', signalregion = (2.46, 2.475), cuts = cuts, isGreaterThan = False)[1], Plotter.plotFom(var = var, massvar = f'{prefix}_M', signalregion = (2.46, 2.475), cuts = cuts)[1]
 
 if __name__ == '__main__':
     main()
