@@ -383,21 +383,29 @@ def main():
     print('Checking for optimal selections...')
     for var in potentially_useful_vars:
 
+        print(f'Testing {var}...')
+
         lower, upper = get_optimal_cut(cuts, var, prefix, plotter)
+
+        print(f'Testing {lower} < {var} < {upper}...')
 
         # If the upper bound cut and lower bound cuts are useful, append cut1 < var < cut2 to file 
         if is_useful(cuts, f'{var} < {upper}', prefix, plotter) and is_useful(cuts, f'{var} > {lower}', prefix, plotter):
             cuts += f'and {lower} < {var} < {upper}'
+            print(f'Adding {lower} < {var} < {upper} to cuts...')
         
         # If the upper bound is useful but the lower bound isnt, just append var < cut2
         elif is_useful(cuts, f'{var} < {upper}', prefix, plotter) and not is_useful(cuts, f'{var} > {lower}', prefix, plotter):
             cuts += f'and {var} < {upper}'
+            print(f'Adding {var} < {upper} to cuts...')
 
         # Similarly 
         elif is_useful(cuts, f'{var} > {lower}', prefix, plotter) and not is_useful(cuts, f'{var} < {upper}', prefix, plotter):
             cuts += f'and {lower} < {var}'
+            print(f'Adding {lower} < {var} to cuts...')
         else:
             cuts = cuts
+            print(f'No valuable cuts for {var} found. ')
 
     print(f'The following sequence of cuts appears to be optimal: {cuts}.')
     print(f'Applying these cuts yields a purity of {plotter.get_purity(cuts = cuts, massvar = f"{prefix}_M", signalregion = (2.46, 2.475)):.2f}% and a signal retention of {plotter.get_sigeff(cuts = cuts, massvar = f"{prefix}_M", signalregion = (2.46, 2.475)):.2f}% from the reconstructed sample.')
