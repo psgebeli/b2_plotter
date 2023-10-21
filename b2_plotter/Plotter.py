@@ -468,6 +468,7 @@ def is_useful(cuts, testcut, prefix, plotter):
     s = plotter.get_sigeff(f'{cuts} and {testcut}', massvar = f'{prefix}_M', signalregion = (2.46, 2.475))
 
     # Return true if the increase in purity is greater than the decrease in signal efficiency
+    print(f'Change in purity: {p - p0}%, Change in sigeff: {s - s0}%')
     return ( (p - p0) > abs(s - s0) )
 
 def get_optimal_cut(cuts, var, prefix, plotter):
