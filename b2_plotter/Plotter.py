@@ -385,7 +385,7 @@ def main():
 
         print(f'Testing {var}...')
 
-        lower, upper = get_optimal_cut(cuts, var, prefix, plotter)
+        upper, lower = get_optimal_cut(cuts, var, prefix, plotter)
 
         print(f'Testing {lower} < {var} < {upper}...')
 
