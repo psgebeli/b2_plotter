@@ -1,7 +1,7 @@
 # `b2_plotter`
 
 ## Description
-The `b2_plotter` package consists of the class Plotter(), whereby several plots based on numpy arrays and pandas dataframes can be created easily. 
+The `b2_plotter` package consists of the class Plotter(), whereby several plots based on numpy arrays and pandas dataframes can be created easily from interpretation of Belle II ROOT mDST files. 
 
 ## Releases
 
