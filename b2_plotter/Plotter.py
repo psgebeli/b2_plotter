@@ -347,13 +347,10 @@ class Plotter():
 
 # Hard coded columns
 cols = ['xi03pi_xi_significanceOfDistance', 'xi03pi_lambda_significanceOfDistance',
-          'xi03pi_xi_flightDistance', 'xi03pi_lambda_flightDistance',
-          'xi03pi_xi_pi0_M',
-          'xi03pi_lambda_p_protonID_noSVD', 'xi03pi_xi_M', 'xi03pi_lambda_M',
+          'xi03pi_xi_pi0_M','xi03pi_lambda_p_protonID_noSVD', 'xi03pi_xi_M', 'xi03pi_lambda_M',
           'xi03pi_gamma1_beamBackgroundSuppression', 'xi03pi_gamma2_beamBackgroundSuppression',
           'xi03pi_gamma1_fakePhotonSuppression', 'xi03pi_gamma2_fakePhotonSuppression',
-          'xi03pi_gamma1_clusterLAT', 'xi03pi_gamma2_clusterLAT',
-          'xi03pi_gamma1_clusterSecondMoment', 'xi03pi_gamma2_clusterSecondMoment', 'xi03pi_xic_M']
+          'xi03pi_xic_M']
     
 # Frequently used vars 
 xicmassrangeloose = '2.3 < xi03pi_xic_M < 2.65'
@@ -367,13 +364,13 @@ def main():
     
     # Parse cmd line arguments and store them in variables
     args = parse_cmd()
-    mcpath, datapath, prefix = args.input, args.data, args.prefix
+    mcpath, prefix = args.input, args.prefix
 
-    # Call construct_dfs with these columns and store return values 
-    mcdfs, datadf = construct_dfs(mcpath, datapath, cols, prefix)
+    # Call construct_dfs with these columns and store return value
+    mcdfs = construct_dfs(mcpath, cols, prefix)
 
     # Construct a plotter object 
-    plotter = Plotter(isSigvar = f'{prefix}_isSignal', mcdfs = mcdfs, signaldf = pd.concat(mcdfs.values()), datadf = datadf)
+    plotter = Plotter(isSigvar = f'{prefix}_isSignal', mcdfs = mcdfs, signaldf = pd.concat(mcdfs.values()))
 
     # Initialize cuts
     cuts = xicmassrangeloose
@@ -398,6 +395,10 @@ def main():
             less_fom.savefig(f'{var}_lessfom.png')
             greater_fom.savefig(f'{var}_greaterfom.png')
 
+            # Close the plots
+            less_fom.close()
+            greater_fom.close()
+
             # Get optimal cuts from FOM and write them to the csv
             writer.writerow({'variable' : var, 'lower_bound' : greater_cut, 'upper_bound' : less_cut})
 
@@ -412,15 +413,14 @@ def parse_cmd():
 
     # Search the command line for arguments following these flags and provide help statement for 
     # python3 Plotter.py --help 
-    parser.add_argument('-i', '--input', help = 'Relative path to MC root file DIRECTORY', type = str)
-    parser.add_argument('-d', '--data', default = '', help = 'Relative path to data root FILE', type = str)
+    parser.add_argument('-i', '--input', help = 'Relative path to directory containing all MC root files', type = str)
     parser.add_argument('-p', '--prefix', help = 'Prefix of Xic+ variables', type = str)
 
     # Return the parsed arguments
     return parser.parse_args()
 
 # Construct dataframes
-def construct_dfs(mcpath, datapath, mycols, prefix):
+def construct_dfs(mcpath, mycols, prefix):
     
     # Initialize an empty dictionary to hold monte carlo dataframes
     mcdfs = {}
@@ -440,14 +440,8 @@ def construct_dfs(mcpath, datapath, mycols, prefix):
             # Create a pair in the mcdfs dictionary of filename : df
             mcdfs[mcfile] = df
 
-    # Create the data df if a data path is provided
-    if datapath != '':
-        datadf = rp.read_root(datapath, key = 'xic_tree', columns = mycols)
-    else: 
-        datadf = None 
-
     # Return the dict of mc dfs and the single data df 
-    return mcdfs, datadf         
+    return mcdfs         
 
 
 def get_fom(cuts, var, prefix, plotter):
