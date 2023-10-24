@@ -1,4 +1,4 @@
-import pytest 
+import pytest as pt
 from b2_plotter.Plotter import Plotter
 import root_pandas as rp
 import os
@@ -39,7 +39,7 @@ def test_getsigeff():
     assert isinstance(plotter.get_sigeff(xicmassrangeloose, 'xipipi_xic_M', (2.46, 2.475)), float)
 
 def test_errors():
-    with pytest.raises(TypeError):
+    with pt.raises(TypeError):
 
         # Test isSigvar type errors
         plotter1 = Plotter(isSigvar=5, mcdfs={'ccbar': df_ccbar}, signaldf = df_ccbar)
