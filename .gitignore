@@ -405,3 +405,6 @@ b2_plotter/.ipynb_checkpoints/
 
 # Pytest cache 
 .pytest_cache/
+
+# .DSStore
+.DS_Store

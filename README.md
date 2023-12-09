@@ -5,6 +5,25 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ## Releases
 
+### Version 3.0.5
+- Update example.ipynb
+
+### Version 3.0.4
+- Bugfix missing call to colors parameter
+
+### Version 3.0.3
+- Make colors() for plot an argument with default for all MC types, so that
+it can be overridden if needed
+
+### Version 3.0.2
+- Bugfix additional root_pandas call
+
+
+### Version 3.0.1
+- Remove deprecated root_pandas library, replace with uproot
+- Update main() with a working example usage for xi03pi
+- Add unit tests
+
 ### Version 2.0.9 
 - 2.0.8 bugfix (missing comma)
 

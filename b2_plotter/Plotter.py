@@ -2,11 +2,10 @@
 # Preamble
 import numpy
 import matplotlib.pyplot as plt 
-import root_pandas 
+import uproot as up 
 import pandas as pd
 import argparse
 import os
-import root_pandas as rp
 import csv
 
 class Plotter():
@@ -58,7 +57,7 @@ class Plotter():
         else:
             raise TypeError('isSigvar is not a string.')
         
-    def plot(self, var, cuts, myrange = (), nbins = 100, isLog = False, xlabel = '', scale = 1, bgscale = 1):
+    def plot(self, var, cuts, myrange = (), nbins = 100, isLog = False, xlabel = '', scale = 1, bgscale = 1, color = ['b', '#ffa500', 'g', 'r', 'c', 'y', '#a52a2a', 'm' ]):
 
         '''Create a matplotlib stacked histogram of a variable over a certain range.
         If datadf is provided to constructor, data will be stacked on top of MC.
@@ -78,7 +77,9 @@ class Plotter():
         :param scale: Factor by which to scale the signal
         :type scale: Float
         :param bgscale: Factor by which to scale the background
-        :type bgscale: Float'''
+        :type bgscale: Float
+        :param color: List of colors to apply to each stack of the histogram
+        :param color: List'''
 
         # Set up matplotlib plot 
         ax = plt.subplot()
@@ -118,7 +119,7 @@ class Plotter():
                     label = list(mcnps.keys()),
                     weights = list(wnps.values()),
                     stacked = True, 
-                    color = ['b', '#ffa500', 'g', 'r', 'c', 'y', '#a52a2a', 'm' ])
+                    color = color)
             bin_centers = 0.5*(bin_edges[1:] + bin_edges[:-1])
             ax.errorbar(bin_centers, ydata, yerr = ydata**0.5, fmt='ko', label="Data")
         else:
@@ -126,7 +127,7 @@ class Plotter():
                     label = list(mcnps.keys()),
                     weights = list(wnps.values()),
                     stacked = True,
-                    color = ['b', '#ffa500', 'g', 'r', 'c', 'y', '#a52a2a', 'm' ])
+                    color = color)
         # Plot features 
         plt.yscale('log') if isLog else plt.yscale('linear')
         plt.xlim(myrange)
@@ -360,6 +361,7 @@ xicmassrangetight = '2.46 < xi03pi_xic_M < 2.475'
 potentially_useful_vars = cols[:-1]
 
 
+
 def main():
     
     # Parse cmd line arguments and store them in variables
@@ -368,7 +370,7 @@ def main():
 
     # Call construct_dfs with these columns and store return value
     mcdfs = construct_dfs(mcpath, cols, prefix)
-
+    
     # Construct a plotter object 
     plotter = Plotter(isSigvar = f'{prefix}_isSignal', mcdfs = mcdfs, signaldf = pd.concat(mcdfs.values()))
 
@@ -435,7 +437,9 @@ def construct_dfs(mcpath, mycols, prefix):
             path = os.path.join(mcpath, mcfile)
 
             # Constract a pandas dataframe with that file 
-            df = rp.read_root(path, key = 'xic_tree', columns = mycols + [f'{prefix}_isSignal'])
+            with up.open(path) as file:
+                tree = file['xic_tree']
+                df = tree.arrays(filter_name = mycols + [f'{prefix}_isSignal'], library = "pd")
 
             # Create a pair in the mcdfs dictionary of filename : df
             mcdfs[mcfile] = df
