@@ -5,6 +5,9 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ## Releases
 
+### Version 3.0.9
+- Again bugfix data plotting
+
 ### Version 3.0.8 
 - Bugfix data plotting
 

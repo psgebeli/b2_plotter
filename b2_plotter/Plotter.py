@@ -205,15 +205,6 @@ class Plotter():
                 weights = list(wnps.values()),
                 stacked = True, 
                 color = color)
-        
-        if addBlinding:
-            ydata, bin_edges = numpy.histogram(npdata_less, npdata_greater, bins=nbins, range=myrange)
-            bin_centers = 0.5*(bin_edges[1:] + bin_edges[:-1])
-            ax.errorbar(bin_centers, ydata, yerr = ydata**0.5, fmt='ko', label="Data")
-        else:
-            ydata, bin_edges = numpy.histogram(npdata, bins=nbins, range=myrange)
-            bin_centers = 0.5*(bin_edges[1:] + bin_edges[:-1])
-            ax.errorbar(bin_centers, ydata, yerr = ydata**0.5, fmt='ko', label="Data")
 
         if addBlinding:
             ydata_less, bin_edges_less = numpy.histogram(npdata_less, bins=nbins, range=myrange)
