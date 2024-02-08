@@ -218,7 +218,7 @@ class Plotter():
         else:
             ydata, bin_edges = numpy.histogram(npdata, bins=nbins, range=myrange)
             bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
-            ax.errorbar(bin_centers, ydata, yerr=ydata**0.5, fmt='ko', label="Data")
+            ax.errorbar(bin_centers, ydata, yerr=ydata**0.5, fmt='ko')
 
             
         # Plot features 

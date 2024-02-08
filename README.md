@@ -5,6 +5,9 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ## Releases
 
+### Version 4.0.0
+- Remove duplicate data label in plotData()
+
 ### Version 3.0.9
 - Again bugfix data plotting
 
