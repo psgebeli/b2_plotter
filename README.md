@@ -5,6 +5,11 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ## Releases
 
+### Version 3.0.7
+- Add signalregion and massvar to constructor call and remove it as a parameter from plotFom, getpurity, getsigeff
+- Split up plot into two functions, plotMC and plotData
+    - Add blinding functionality to plotData function
+
 ### Version 3.0.6
 - Add blinding to invariant mass distributions through introduction of addBlinding parameter to initialization
 

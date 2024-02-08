@@ -10,7 +10,8 @@ import csv
 
 class Plotter():
 
-    def __init__(self, isSigvar: str, mcdfs: dict, signaldf: pd.DataFrame, datadf: pd.DataFrame = None, addBlinding = False):
+    def __init__(self, isSigvar: str, mcdfs: dict, signaldf: pd.DataFrame, massvar: str, signalregion: tuple,
+                 datadf: pd.DataFrame = None):
         
         '''
         Initialize a plotter object upon constructor call.
@@ -21,10 +22,12 @@ class Plotter():
         :type mcdfs: dict (key: label, value: df)
         :param signaldf: Monte carlo dataframe to be treated as signal
         :type signaldf: pandas dataframe
+        :param massvar: Name of primary mass variable
+        :type massvar: str
+        :param signalregion: Signal region of primary mass variable
+        :type signalregion: tuple
         :param datadf: Data dataframe constructed with root_pandas
         :type datadf: pandas dataframe
-        :param addBlinding: If true, only plot data sidebands to avoid blinding signal 
-        :type addBlinding: bool
 
         :raise TypeError: If any parameters dont match expected type
         '''
@@ -58,24 +61,24 @@ class Plotter():
         else:
             raise TypeError('isSigvar is not a string.')
         
-        if isinstance(addBlinding, bool):
-            self.addBlinding = addBlinding
+        if isinstance(massvar, str):
+            self.massvar = massvar
         else:
-            raise TypeError('addBlinding is not a boolean.')
+            raise TypeError('massvar is not a string.')
+        
+        if isinstance(signalregion, tuple):
+            self.signalregion = signalregion
+        else:
+            raise TypeError('signalregion is not a tuple.')
         
         
-    def plot(self, var, massvar, signalregion, cuts, myrange = (), nbins = 100, isLog = False, xlabel = '', scale = 1, 
-             bgscale = 1, color = ['b', '#ffa500', 'g', 'r', 'c', 'y', '#a52a2a', 'm' ]):
+    def plotMC(self, var, cuts, myrange = (), nbins = 100, isLog = False, xlabel = '', scale = 1, bgscale = 1, 
+               color = ['b', '#ffa500', 'g', 'r', 'c', 'y', '#a52a2a', 'm' ]):
 
-        '''Create a matplotlib stacked histogram of a variable over a certain range.
-        If datadf is provided to constructor, data will be stacked on top of MC.
+        '''Create a matplotlib stacked histogram of a variable over a certain range using only Monte Carlo.
 
         :param var: The variable to be cut
         :type var: str
-        :param massvar: The name of the primary mass variable
-        :type massvar: str
-        :param signalregion: The signal region for primary mass
-        :type signalregion: tuple
         :param cuts: All cuts to be applied to the dataframes before plotting
         :type cuts: str
         :param myrange: Range on x-axis
@@ -104,15 +107,83 @@ class Plotter():
         for label, df in self.mcdfs.items():
             mcnps[label] = df.query(cuts + f'and {self.isSigvar} != 1')[var].to_numpy()
         mcnps['signal'] = self.signaldf.query(cuts + f'and {self.isSigvar} == 1')[var].to_numpy()
+        
+        # Set up empty dict of weights 
+        wnps = {}
 
-        # If there is a data dataframe, create a corresponding numpy array.
-        if self.datadf is not None:
-            if self.addBlinding and massvar == var:
-                npdata_less = self.datadf.query(f'{cuts} and {massvar} < {signalregion[0]}')[massvar].to_numpy()
-                npdata_greater = self.datadf.query(f'{cuts} and {massvar} > {signalregion[1]}')[massvar].to_numpy()
-                npdata = numpy.concatenate(npdata_less, npdata_greater)
+        # For each label : np array in mcnps, create a weight of the corresponding scale times the length of the array
+        for label, np in mcnps.items():
+            if label != 'signal':
+                wnps[label] = [bgscale] * len(np)
             else:
-                npdata = self.datadf.query(cuts)[var].to_numpy()
+                wnps['signal'] = [scale] * len(np)
+
+        if myrange == ():
+            # Calculate the dynamic range for the variable based on the data within the specified cuts
+            all_mc = numpy.concatenate(list(mcnps.values()))
+            myrange = (numpy.min(all_mc), numpy.max(all_mc))
+        
+        # Create stacked matplotlib histogram
+        ax.hist(list(mcnps.values()), bins = nbins, range = myrange,
+                label = list(mcnps.keys()),
+                weights = list(wnps.values()),
+                stacked = True,
+                color = color)
+        
+        # Plot features 
+        plt.yscale('log') if isLog else plt.yscale('linear')
+        plt.xlim(myrange)
+        plt.ylabel('Number of Events')
+        plt.xlabel(var) if xlabel == '' else plt.xlabel(xlabel)
+        plt.legend()
+
+        return plt
+
+    def plotData(self, var, cuts, myrange = (), nbins = 100, isLog = False, xlabel = '', scale = 1, 
+             bgscale = 1, color = ['b', '#ffa500', 'g', 'r', 'c', 'y', '#a52a2a', 'm' ], addBlinding = True):
+
+        '''Create a matplotlib stacked histogram of a variable over a certain range.
+        If datadf is provided to constructor, data will be stacked on top of MC.
+
+        :param var: The variable to be cut
+        :type var: str
+        :param cuts: All cuts to be applied to the dataframes before plotting
+        :type cuts: str
+        :param myrange: Range on x-axis
+        :type myrange: tuple 
+        :param nbins: Number of bins 
+        :type nbins: int 
+        :param isLog: Whether or not the plot should be on a logarithmic scale 
+        :type isLog: bool
+        :param xlabel: Label on x-axis 
+        :type xlabel: str (usually raw str)
+        :param scale: Factor by which to scale the signal
+        :type scale: Float
+        :param bgscale: Factor by which to scale the background
+        :type bgscale: Float
+        :param color: List of colors to apply to each stack of the histogram
+        :param color: List
+        :param addBlinding: Add blinding to signal region?
+        :param addBlinding: bool'''
+
+        # Set up matplotlib plot 
+        ax = plt.subplot()
+
+        # Set up empty dict of MC numpy arrays
+        mcnps = {}
+
+        # For each key/value pair in mcdfs, create a new entry in mcnps of 'label' : numpy array.
+        # Also create an entry for the signal.
+        for label, df in self.mcdfs.items():
+            mcnps[label] = df.query(cuts + f'and {self.isSigvar} != 1')[var].to_numpy()
+        mcnps['signal'] = self.signaldf.query(cuts + f'and {self.isSigvar} == 1')[var].to_numpy()
+
+        # Create data arrays for outside of signal region if blinding is enabled and mass is being plotted, otherwise make one array
+        if addBlinding and var == self.massvar:
+            npdata_less = self.datadf.query(f'{cuts} and {self.massvar} < {self.signalregion[0]}')[self.massvar].to_numpy()
+            npdata_greater = self.datadf.query(f'{cuts} and {self.massvar} > {self.signalregion[1]}')[self.massvar].to_numpy()
+        else:
+            npdata = self.datadf.query(cuts)[var].to_numpy()
         
         # Set up empty dict of weights 
         wnps = {}
@@ -129,22 +200,23 @@ class Plotter():
             all_data = numpy.concatenate(list(mcnps.values()))
             myrange = (numpy.min(all_data), numpy.max(all_data))
         
-        # Create stacked matplotlib histogram
-        if self.datadf is not None:
-            ydata, bin_edges = numpy.histogram(npdata, bins=nbins, range=myrange)
-            ax.hist(list(mcnps.values()), bins = nbins, range = myrange,
-                    label = list(mcnps.keys()),
-                    weights = list(wnps.values()),
-                    stacked = True, 
-                    color = color)
+        # Plot data/mc using conditional for blinding
+        
+        ax.hist(list(mcnps.values()), bins = nbins, range = myrange,
+                label = list(mcnps.keys()),
+                weights = list(wnps.values()),
+                stacked = True, 
+                color = color)
+        
+        if addBlinding:
+            ydata, bin_edges = numpy.histogram(npdata_less, npdata_greater, bins=nbins, range=myrange)
             bin_centers = 0.5*(bin_edges[1:] + bin_edges[:-1])
             ax.errorbar(bin_centers, ydata, yerr = ydata**0.5, fmt='ko', label="Data")
         else:
-            ax.hist(list(mcnps.values()), bins = nbins, range = myrange,
-                    label = list(mcnps.keys()),
-                    weights = list(wnps.values()),
-                    stacked = True,
-                    color = color)
+            ydata, bin_edges = numpy.histogram(npdata, bins=nbins, range=myrange)
+            bin_centers = 0.5*(bin_edges[1:] + bin_edges[:-1])
+            ax.errorbar(bin_centers, ydata, yerr = ydata**0.5, fmt='ko', label="Data")
+            
         # Plot features 
         plt.yscale('log') if isLog else plt.yscale('linear')
         plt.xlim(myrange)
@@ -156,7 +228,7 @@ class Plotter():
     
 
 
-    def plotFom(self, var, massvar, signalregion, cuts, myrange = (), isGreaterThan = True, nbins = 100, xlabel = ''):
+    def plotFom(self, var, cuts, myrange = (), isGreaterThan = True, nbins = 100, xlabel = ''):
 
         '''Function to plot the figure of merit for cuts on a particular variable,
         where FOM = sqrt[signalevents/(signalevents + bkgevents)]. The maximum
@@ -166,15 +238,10 @@ class Plotter():
 
         :param var: The variable to be cut
         :type var: str
-        :param massvar: The name of the variable for your particle's mass
-        :type massvar: str
-        :param myrange: The range over which cuts should be applied
-        :type myrange: tuple 
-        :param signalregion: The signal region for the mass of your particular
-        particle -- used to calculate purity and signal efficiency.
-        :type signalregion: tuple
         :param cuts: Cuts to be applied before the FOM is generated
         :type cuts: str
+        :param myrange: The range over which cuts should be applied
+        :type myrange: tuple 
         :param isGreaterThan: Expresses whether to apply testcuts where var > value, or greater than cuts
         :type isGreaterThan: bool
         :param nbins: The number of bins 
@@ -186,8 +253,8 @@ class Plotter():
         df_bkg = pd.concat(self.mcdfs)
 
         # Store the total signal and background as numpy arrays
-        np_bkg = df_bkg.query(f'{cuts} and {signalregion[0]} < {massvar} < {signalregion[1]} and {self.isSigvar} != 1')[var].to_numpy()
-        np_sig = self.signaldf.query(f'{cuts} and {signalregion[0]} < {massvar} < {signalregion[1]} and {self.isSigvar} == 1')[var].to_numpy()
+        np_bkg = df_bkg.query(f'{cuts} and {self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {self.isSigvar} != 1')[var].to_numpy()
+        np_sig = self.signaldf.query(f'{cuts} and {self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {self.isSigvar} == 1')[var].to_numpy()
 
 
         # Store the total amount of sig events in the signal region by the size of the numpy array
@@ -215,9 +282,9 @@ class Plotter():
             # If the paramater isGreaterThan is True, the global cut is var > value. Otherwise, its var < value.
             # The global cuts is a string of this cut as well as constraining the mass to the signal region.
             if isGreaterThan:
-                globalcuts = f'{cuts} and {signalregion[0]} < {massvar} < {signalregion[1]} and {var} > {testcut}'
+                globalcuts = f'{cuts} and {self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {var} > {testcut}'
             else:
-                globalcuts = f'{cuts} and {signalregion[0]} < {massvar} < {signalregion[1]} and {var} < {testcut}'
+                globalcuts = f'{cuts} and {self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {var} < {testcut}'
             
             # Append the size of the array after the constraints to the globalsig/globalbkg lists respectively
             globalsig.append(self.signaldf.query(f'{globalcuts} and {self.isSigvar} == 1')[var].to_numpy().size)
@@ -324,40 +391,32 @@ class Plotter():
         
         return plt
 
-    def get_purity(self, cuts, massvar, signalregion):
+    def get_purity(self, cuts):
         
         '''Function to return the purity, % of signal in signal region
         
         :param cuts: All cuts to be applied to the dataframes before plotting
-        :type cuts: str
-        :param massvar: The name of the variable for your particle's mass
-        :type massvar: str 
-        :param signalregion: The signal region for the mass of your particular particle.
-        :type signalregion: tuple'''
+        :type cuts: str'''
 
         df_bkg = pd.concat(self.mcdfs)
 
-        npsig = self.signaldf.query(f'{signalregion[0]} < {massvar} < {signalregion[1]} and {cuts} and {self.isSigvar} == 1')[massvar].to_numpy()
-        npbkg = df_bkg.query(f'{signalregion[0]} < {massvar} < {signalregion[1]} and {cuts} and {self.isSigvar} != 1')[massvar].to_numpy()
+        npsig = self.signaldf.query(f'{self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {cuts} and {self.isSigvar} == 1')[self.massvar].to_numpy()
+        npbkg = df_bkg.query(f'{self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {cuts} and {self.isSigvar} != 1')[self.massvar].to_numpy()
 
         sig_events, bkg_events = len(npsig), len(npbkg)
         total_events = sig_events + bkg_events
 
         return sig_events / total_events * 100
     
-    def get_sigeff(self, cuts, massvar, signalregion):
+    def get_sigeff(self, cuts):
 
         '''Function to return the sigeff, % of signal lost from applying cuts
         
         :param cuts: All cuts to be applied to the dataframes before plotting
-        :type cuts: str
-        :param massvar: The name of the variable for your particle's mass
-        :type massvar: str 
-        :param signalregion: The signal region for the mass of your particular particle.
-        :type signalregion: tuple'''
+        :type cuts: str'''
 
-        sig_before = len(self.signaldf.query(f'{signalregion[0]} < {massvar} < {signalregion[1]} and {self.isSigvar} == 1'))
-        sig_after = len(self.signaldf.query(f'{signalregion[0]} < {massvar} < {signalregion[1]} and {cuts} and {self.isSigvar} == 1'))
+        sig_before = len(self.signaldf.query(f'{self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {self.isSigvar} == 1'))
+        sig_after = len(self.signaldf.query(f'{self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {cuts} and {self.isSigvar} == 1'))
 
         return sig_after / sig_before * 100
 
