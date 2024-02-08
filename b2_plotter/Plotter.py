@@ -10,7 +10,7 @@ import csv
 
 class Plotter():
 
-    def __init__(self, isSigvar: str, mcdfs: dict, signaldf: pd.DataFrame, datadf: pd.DataFrame = None):
+    def __init__(self, isSigvar: str, mcdfs: dict, signaldf: pd.DataFrame, datadf: pd.DataFrame = None, addBlinding = False):
         
         '''
         Initialize a plotter object upon constructor call.
@@ -23,7 +23,8 @@ class Plotter():
         :type signaldf: pandas dataframe
         :param datadf: Data dataframe constructed with root_pandas
         :type datadf: pandas dataframe
-        
+        :param addBlinding: If true, only plot data sidebands to avoid blinding signal 
+        :type addBlinding: bool
 
         :raise TypeError: If any parameters dont match expected type
         '''
@@ -57,13 +58,24 @@ class Plotter():
         else:
             raise TypeError('isSigvar is not a string.')
         
-    def plot(self, var, cuts, myrange = (), nbins = 100, isLog = False, xlabel = '', scale = 1, bgscale = 1, color = ['b', '#ffa500', 'g', 'r', 'c', 'y', '#a52a2a', 'm' ]):
+        if isinstance(addBlinding, bool):
+            self.addBlinding = addBlinding
+        else:
+            raise TypeError('addBlinding is not a boolean.')
+        
+        
+    def plot(self, var, massvar, signalregion, cuts, myrange = (), nbins = 100, isLog = False, xlabel = '', scale = 1, 
+             bgscale = 1, color = ['b', '#ffa500', 'g', 'r', 'c', 'y', '#a52a2a', 'm' ]):
 
         '''Create a matplotlib stacked histogram of a variable over a certain range.
         If datadf is provided to constructor, data will be stacked on top of MC.
 
         :param var: The variable to be cut
         :type var: str
+        :param massvar: The name of the primary mass variable
+        :type massvar: str
+        :param signalregion: The signal region for primary mass
+        :type signalregion: tuple
         :param cuts: All cuts to be applied to the dataframes before plotting
         :type cuts: str
         :param myrange: Range on x-axis
@@ -95,7 +107,12 @@ class Plotter():
 
         # If there is a data dataframe, create a corresponding numpy array.
         if self.datadf is not None:
-            npdata = self.datadf.query(cuts)[var].to_numpy()
+            if self.addBlinding and massvar == var:
+                npdata_less = self.datadf.query(f'{cuts} and {massvar} < {signalregion[0]}')[massvar].to_numpy()
+                npdata_greater = self.datadf.query(f'{cuts} and {massvar} > {signalregion[1]}')[massvar].to_numpy()
+                npdata = numpy.concatenate(npdata_less, npdata_greater)
+            else:
+                npdata = self.datadf.query(cuts)[var].to_numpy()
         
         # Set up empty dict of weights 
         wnps = {}
@@ -136,6 +153,7 @@ class Plotter():
         plt.legend()
 
         return plt
+    
 
 
     def plotFom(self, var, massvar, signalregion, cuts, myrange = (), isGreaterThan = True, nbins = 100, xlabel = ''):

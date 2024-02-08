@@ -5,6 +5,9 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ## Releases
 
+### Version 3.0.6
+- Add blinding to invariant mass distributions through introduction of addBlinding parameter to initialization
+
 ### Version 3.0.5
 - Update example.ipynb
 
