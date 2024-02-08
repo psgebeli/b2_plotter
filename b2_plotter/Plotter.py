@@ -214,11 +214,11 @@ class Plotter():
             bin_centers_greater = 0.5 * (bin_edges_greater[1:] + bin_edges_greater[:-1])
             
             ax.errorbar(bin_centers_less, ydata_less, yerr=ydata_less**0.5, fmt='ko', label="Data")
-            ax.errorbar(bin_centers_greater, ydata_greater, yerr=ydata_greater**0.5, fmt='ko', label="Data")
+            ax.errorbar(bin_centers_greater, ydata_greater, yerr=ydata_greater**0.5, fmt='ko')
         else:
             ydata, bin_edges = numpy.histogram(npdata, bins=nbins, range=myrange)
             bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
-            ax.errorbar(bin_centers, ydata, yerr=ydata**0.5, fmt='ko')
+            ax.errorbar(bin_centers, ydata, yerr=ydata**0.5, fmt='ko', label = "Data")
 
             
         # Plot features 
