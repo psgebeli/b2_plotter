@@ -5,6 +5,9 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ## Releases
 
+### Version 4.0.2
+- Shift the data sidebands (when blinding is enabled) by +/- 3 sigma
+
 ### Version 4.0.1
 - Remove the actual duplicate data label..
 
