@@ -5,6 +5,9 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ## Releases
 
+### Version 4.0.3
+- Use numpy's std instead of mean and add parenthesis to cut f string
+
 ### Version 4.0.2
 - Shift the data sidebands (when blinding is enabled) by +/- 3 sigma
 

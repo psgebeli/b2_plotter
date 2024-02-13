@@ -177,12 +177,12 @@ class Plotter():
         mcnps['signal'] = self.signaldf.query(cuts + f'and {self.isSigvar} == 1')[var].to_numpy()
 
         # Calculate the mean, primarily used for blinding the data sidebands
-        sigma = numpy.mean(mcnps['signal'])
+        sigma = numpy.std(mcnps['signal'])
 
         # Create data arrays for outside of signal region if blinding is enabled and mass is being plotted, otherwise make one array
         if addBlinding and var == self.massvar:
-            npdata_less = self.datadf.query(f'{cuts} and {self.massvar} < {self.signalregion[0] - 3 * sigma}')[self.massvar].to_numpy()
-            npdata_greater = self.datadf.query(f'{cuts} and {self.massvar} > {self.signalregion[1] + 3 * sigma}')[self.massvar].to_numpy()
+            npdata_less = self.datadf.query(f'{cuts} and {self.massvar} < {self.signalregion[0] - (3 * sigma)}')[self.massvar].to_numpy()
+            npdata_greater = self.datadf.query(f'{cuts} and {self.massvar} > {self.signalregion[1] + (3 * sigma)}')[self.massvar].to_numpy()
         else:
             npdata = self.datadf.query(cuts)[var].to_numpy()
         
