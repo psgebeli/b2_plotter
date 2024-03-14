@@ -438,7 +438,7 @@ class Plotter():
         :type bgscale: Float'''
 
         sig_before = len(self.signaldf.query(f'{self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {self.isSigvar} == 1')) * scale
-        sig_after = len(self.signaldf.query(f'{self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {cuts} and {self.isSigvar} == 1')) * bgscale
+        sig_after = len(self.signaldf.query(f'{self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {cuts} and {self.isSigvar} == 1')) * scale
 
         return sig_after / sig_before * 100
 

@@ -5,6 +5,9 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ## Releases
 
+### Version 4.0.5
+- Bugfix getSigEff calculation with scale parameter
+
 ### Version 4.0.4
 - Add scale/bgscale functionality to plotFom, plotStep, getPurity, getSigEff (latter 2 renamed for consistency)
 
