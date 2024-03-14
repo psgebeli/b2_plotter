@@ -235,7 +235,7 @@ class Plotter():
     
 
 
-    def plotFom(self, var, cuts, myrange = (), isGreaterThan = True, nbins = 100, xlabel = ''):
+    def plotFom(self, var, cuts, myrange = (), isGreaterThan = True, nbins = 100, xlabel = '', scale = 1, bgscale = 1):
 
         '''Function to plot the figure of merit for cuts on a particular variable,
         where FOM = sqrt[signalevents/(signalevents + bkgevents)]. The maximum
@@ -254,7 +254,11 @@ class Plotter():
         :param nbins: The number of bins 
         :type nbins: int 
         :param xlabel: Label for the x-axis
-        :type xlabel: str'''
+        :type xlabel: str
+        :param scale: Factor by which to scale the signal
+        :type scale: Float
+        :param bgscale: Factor by which to scale the background
+        :type bgscale: Float'''
 
         # Create a background dataframe as the concatenation of all of the individual monte carlo dataframes
         df_bkg = pd.concat(self.mcdfs)
@@ -265,7 +269,7 @@ class Plotter():
 
 
         # Store the total amount of sig events in the signal region by the size of the numpy array
-        total_sig = np_sig.size
+        total_sig = np_sig.size * scale
 
         if myrange == () and isGreaterThan:
             # Calculate the dynamic range for the variable based on the data within the specified cuts
@@ -292,10 +296,9 @@ class Plotter():
                 globalcuts = f'{cuts} and {self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {var} > {testcut}'
             else:
                 globalcuts = f'{cuts} and {self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {var} < {testcut}'
-            
             # Append the size of the array after the constraints to the globalsig/globalbkg lists respectively
-            globalsig.append(self.signaldf.query(f'{globalcuts} and {self.isSigvar} == 1')[var].to_numpy().size)
-            globalbkg.append(df_bkg.query(f'{globalcuts} and {self.isSigvar} != 1')[var].to_numpy().size)
+            globalsig.append(self.signaldf.query(f'{globalcuts} and {self.isSigvar} == 1')[var].to_numpy().size * scale)
+            globalbkg.append(df_bkg.query(f'{globalcuts} and {self.isSigvar} != 1')[var].to_numpy().size * bgscale)
 
             # Calculate the figure of merit for this bin and append it to fom list
             fom.append(globalsig[bin] / numpy.sqrt(globalsig[bin] + globalbkg[bin]))
@@ -356,7 +359,7 @@ class Plotter():
 
         return plt, optimal_cut
 
-    def plotStep(self, var, cuts, myrange = (), nbins = 100, xlabel = ''):
+    def plotStep(self, var, cuts, myrange = (), nbins = 100, xlabel = '', scale = 1, bgscale = 1):
 
         '''Function to plot an unstacked step histogram for a variable, which is useful in cases where you do not 
         need to see the individual background types and/or the signal is hidden underneath a sea of background.
@@ -370,7 +373,11 @@ class Plotter():
         :param nbins: Number of bins 
         :type nbins: int 
         :param xlabel: Label on x-axis 
-        :type xlabel: str (usually raw str)'''
+        :type xlabel: str (usually raw str)
+        :param scale: Factor by which to scale the signal
+        :type scale: Float
+        :param bgscale: Factor by which to scale the background
+        :type bgscale: Float'''
 
         # Setup plot
         ax = plt.subplot()
@@ -386,7 +393,7 @@ class Plotter():
             myrange = (numpy.min(npbkg), numpy.max(npbkg))
 
         # Create the histogram
-        ax.hist([npbkg, npsig], bins = nbins, range = myrange, label =  ['bkg', 'signal'], histtype = 'step', stacked = False)
+        ax.hist([npbkg, npsig], weights = [npbkg * len(npbkg), npsig * len(npsig)], bins = nbins, range = myrange, label =  ['bkg', 'signal'], histtype = 'step', stacked = False)
 
         # Set plot features 
         plt.yscale('log')
@@ -398,32 +405,40 @@ class Plotter():
         
         return plt
 
-    def get_purity(self, cuts):
+    def getPurity(self, cuts, scale = 1, bgscale = 1):
         
         '''Function to return the purity, % of signal in signal region
         
         :param cuts: All cuts to be applied to the dataframes before plotting
-        :type cuts: str'''
+        :type cuts: str
+        :param scale: Factor by which to scale the signal
+        :type scale: Float
+        :param bgscale: Factor by which to scale the background
+        :type bgscale: Float'''
 
         df_bkg = pd.concat(self.mcdfs)
 
         npsig = self.signaldf.query(f'{self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {cuts} and {self.isSigvar} == 1')[self.massvar].to_numpy()
         npbkg = df_bkg.query(f'{self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {cuts} and {self.isSigvar} != 1')[self.massvar].to_numpy()
 
-        sig_events, bkg_events = len(npsig), len(npbkg)
+        sig_events, bkg_events = len(npsig) * scale, len(npbkg) * bgscale
         total_events = sig_events + bkg_events
 
         return sig_events / total_events * 100
     
-    def get_sigeff(self, cuts):
+    def getSigEff(self, cuts, scale = 1, bgscale = 1):
 
         '''Function to return the sigeff, % of signal lost from applying cuts
         
         :param cuts: All cuts to be applied to the dataframes before plotting
-        :type cuts: str'''
+        :type cuts: str
+        :param scale: Factor by which to scale the signal
+        :type scale: Float
+        :param bgscale: Factor by which to scale the background
+        :type bgscale: Float'''
 
-        sig_before = len(self.signaldf.query(f'{self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {self.isSigvar} == 1'))
-        sig_after = len(self.signaldf.query(f'{self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {cuts} and {self.isSigvar} == 1'))
+        sig_before = len(self.signaldf.query(f'{self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {self.isSigvar} == 1')) * scale
+        sig_after = len(self.signaldf.query(f'{self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {cuts} and {self.isSigvar} == 1')) * bgscale
 
         return sig_after / sig_before * 100
 
