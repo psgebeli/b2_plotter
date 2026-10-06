@@ -5,6 +5,11 @@ The `b2_plotter` package consists of the class Plotter(), whereby several plots 
 
 ## Releases
 
+### Version 4.0.6
+- Guard fom and sigeff against nans
+- Draw a vertical dashed line at the position of maximum figure of merit
+- Remove unnecessary lines (npbkg never used, subplots adjust called twice)
+
 ### Version 4.0.5
 - Bugfix getSigEff calculation with scale parameter
 

@@ -238,7 +238,7 @@ class Plotter():
     def plotFom(self, var, cuts, myrange = (), isGreaterThan = True, nbins = 100, xlabel = '', scale = 1, bgscale = 1):
 
         '''Function to plot the figure of merit for cuts on a particular variable,
-        where FOM = sqrt[signalevents/(signalevents + bkgevents)]. The maximum
+        where FOM = signalevents/sqrt(signalevents + bkgevents). The maximum
         of the FOM curve is the cut which removes the most background while keeping
         the most signal. Purity (how much of signal region is signal) and signal
         efficiency (what % of signal is removed) are also included. 
@@ -263,10 +263,8 @@ class Plotter():
         # Create a background dataframe as the concatenation of all of the individual monte carlo dataframes
         df_bkg = pd.concat(self.mcdfs)
 
-        # Store the total signal and background as numpy arrays
-        np_bkg = df_bkg.query(f'{cuts} and {self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {self.isSigvar} != 1')[var].to_numpy()
+        # Store the total signal
         np_sig = self.signaldf.query(f'{cuts} and {self.signalregion[0]} < {self.massvar} < {self.signalregion[1]} and {self.isSigvar} == 1')[var].to_numpy()
-
 
         # Store the total amount of sig events in the signal region by the size of the numpy array
         total_sig = np_sig.size * scale
@@ -301,7 +299,8 @@ class Plotter():
             globalbkg.append(df_bkg.query(f'{globalcuts} and {self.isSigvar} != 1')[var].to_numpy().size * bgscale)
 
             # Calculate the figure of merit for this bin and append it to fom list
-            fom.append(globalsig[bin] / numpy.sqrt(globalsig[bin] + globalbkg[bin]))
+            denom = globalsig[bin] + globalbkg[bin]
+            fom.append(globalsig[bin] / numpy.sqrt(denom) if denom > 0 else 0.0)
 
         
         # Setup the figure of merit plot
@@ -309,7 +308,6 @@ class Plotter():
 
         # Twin the x-axis twice to make 2 independent y-axes and make some extra space for them.
         axes = [ax, ax.twinx(), ax.twinx()]
-        fig.subplots_adjust(right=0.75)
         fig.subplots_adjust(right=0.75)
 
         # Move the last y-axis spine over to the right by 20% of the width of the axes
@@ -325,7 +323,8 @@ class Plotter():
         purity = []
         for bin in range(0, (nbins - 1)):
             sigeff.append(globalsig[bin]/total_sig)
-            purity.append(globalsig[bin]/(globalbkg[bin]+globalsig[bin]))
+            denom = globalbkg[bin] + globalsig[bin]
+            purity.append(globalsig[bin]/denom if denom > 0 else 0.0)
         
         # Append the signal efficiency and purity of the final bin again so the curves flatten out.
         sigeff.append(sigeff[nbins - 2])
@@ -356,6 +355,15 @@ class Plotter():
 
         # Get the corresponding test cut value at the maximum FOM
         optimal_cut = testcuts[max_fom_index]
+
+        # Mark the FOM maximum with a vertical dashed line
+        axes[0].axvline(optimal_cut, color='Black', linestyle='--', linewidth=1)
+
+        # Print the cut value just above the top edge of the plot, at the line's x position
+        # (x in data coords, y in axes coords, so it's independent of the FOM y-range)
+        axes[0].text(optimal_cut, 1.01, f'{optimal_cut:.4g}',
+                     transform=axes[0].get_xaxis_transform(),
+                     color='Purple', ha='center', va='bottom', fontweight='bold')
 
         return plt, optimal_cut
 
